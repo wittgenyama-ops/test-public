@@ -1,0 +1,406 @@
+# AI使用と人間の認知能力の変化に関する文献データベース
+#
+# フィールド定義は docs/schema.md を参照。
+# verification:
+#   abstract   = 抄録・二次情報のみで確認（数値は原典で要再確認）
+#   fulltext   = 本文を読んで確認済み
+# 新しい文献は inbox/ で検討してからここに追加する。
+
+- id: kosmyna2025brain
+  title: "Your Brain on ChatGPT: Accumulation of Cognitive Debt when Using an AI Assistant for Essay Writing Task"
+  authors: ["Kosmyna, N.", "Hauptmann, E.", "Yuan, Y. T.", "Situ, J.", "Liao, X.-H.", "Beresnitzky, A. V.", "Braunstein, I.", "Maes, P."]
+  year: 2025
+  venue: arXiv preprint (2506.08872)
+  url: https://arxiv.org/abs/2506.08872
+  peer_reviewed: false
+  design: experiment
+  n: 54
+  population: 大学生・若年成人（ボストン地域）
+  ai_type: LLM (ChatGPT)
+  domains: [memory, neural_engagement, ownership]
+  context: writing
+  direction: negative
+  findings: >
+    LLM群・検索エンジン群・ツールなし群でエッセイ執筆を比較。EEG上の脳内結合は
+    外部支援の量に応じて低下（ツールなし>検索>LLM）。LLM群は自分の書いた文の引用が困難で、
+    作品の所有感も低い。第4セッションでLLM→ツールなしに切り替えた群は結合が弱いまま。
+  limitations: >
+    小標本（第4セッションはn=18）、査読前、単一課題。方法論への批判が公表されている。
+  verification: abstract
+
+- id: gerlich2025societies
+  title: "AI Tools in Society: Impacts on Cognitive Offloading and the Future of Critical Thinking"
+  authors: ["Gerlich, M."]
+  year: 2025
+  venue: Societies, 15(1), 6
+  doi: 10.3390/soc15010006
+  peer_reviewed: true
+  design: survey
+  n: 666
+  population: 多様な年齢・教育歴の成人
+  ai_type: AI tools (general)
+  domains: [critical_thinking, cognitive_offloading]
+  context: everyday
+  direction: negative
+  findings: >
+    AI使用頻度と批判的思考の間に強い負の相関（報告値 r≈-0.68）。認知的オフローディングが媒介。
+    若年層ほどAI依存が高く批判的思考スコアが低い。高学歴はAI使用にかかわらず批判的思考が高い。
+  limitations: 横断的・自己報告中心で因果は不明。
+  verification: abstract
+
+- id: lee2025chi
+  title: "The Impact of Generative AI on Critical Thinking: Self-Reported Reductions in Cognitive Effort and Confidence Effects From a Survey of Knowledge Workers"
+  authors: ["Lee, H.-P.", "Sarkar, A.", "Tankelevitch, L.", "Drosos, I.", "Rintel, S.", "Banks, R.", "Wilson, N."]
+  year: 2025
+  venue: Proceedings of CHI 2025
+  doi: 10.1145/3706598.3713778
+  peer_reviewed: true
+  design: survey
+  n: 319
+  population: 知識労働者（936件の使用事例）
+  ai_type: Generative AI (general)
+  domains: [critical_thinking, trust]
+  context: work
+  direction: mixed
+  findings: >
+    AIへの信頼が高いほど批判的思考の自己報告が少なく、自分の能力への自信が高いほど多い。
+    批判的思考の中身が「情報収集・問題解決」から「検証・統合・タスクの監督（stewardship）」へ移行。
+  limitations: 自己報告、横断的。批判的思考を客観的に測定していない。
+  verification: abstract
+
+- id: bastani2025pnas
+  title: "Generative AI without guardrails can harm learning: Evidence from high school mathematics"
+  authors: ["Bastani, H.", "Bastani, O.", "Sungu, A.", "Ge, H.", "Kabakcı, Ö.", "Mariman, R."]
+  year: 2025
+  venue: PNAS, 122
+  doi: 10.1073/pnas.2422633122
+  peer_reviewed: true
+  design: rct
+  n: 1000
+  population: トルコの高校生（約1000名）
+  ai_type: LLM (GPT-4; GPT Base vs GPT Tutor)
+  domains: [learning, skill_acquisition]
+  context: education
+  direction: mixed
+  findings: >
+    練習中のAI利用で成績は向上（GPT Base +48%、GPT Tutor +127%）。しかしAIを外した試験では
+    GPT Base群が非利用群より17%低下。答えの丸写し（crutch）が原因。学習保護型プロンプト
+    （GPT Tutor）で悪影響はほぼ緩和。
+  limitations: 単一国・単一科目。長期効果は不明。
+  verification: abstract
+
+- id: fan2025bjet
+  title: "Beware of Metacognitive Laziness: Effects of Generative Artificial Intelligence on Learning Motivation, Processes, and Performance"
+  authors: ["Fan, Y.", "Tang, L.", "Le, H.", "Shen, K.", "Tan, S.", "Zhao, Y.", "Shen, Y.", "Li, X.", "Gašević, D."]
+  year: 2025
+  venue: British Journal of Educational Technology
+  url: https://arxiv.org/abs/2412.09315
+  peer_reviewed: true
+  design: rct
+  n: 117
+  population: 大学生
+  ai_type: LLM (ChatGPT)
+  domains: [metacognition, self_regulated_learning, learning]
+  context: writing
+  direction: mixed
+  findings: >
+    ChatGPT・人間専門家・チェックリスト・支援なしの4条件。ChatGPT群はエッセイ得点が最も向上したが、
+    知識獲得・転移は他群と差なし。自己調整学習のプロセスが変化し、自省の代わりにAIへ戻る
+    「メタ認知的怠惰」を指摘。内発的動機づけに差なし。
+  limitations: 単一の実験室課題、小標本。
+  verification: abstract
+
+- id: fernandes2026chb
+  title: "AI makes you smarter but none the wiser: The disconnect between performance and metacognition"
+  authors: ["Fernandes, D.", "Villa, S.", "Nicholls, S.", "Haavisto, O.", "Buschek, D.", "Schmidt, A.", "Kosch, T.", "Shen, C.", "Welsch, R."]
+  year: 2026
+  venue: Computers in Human Behavior
+  url: https://arxiv.org/abs/2409.16708
+  peer_reviewed: true
+  design: experiment
+  n: 698
+  population: オンライン参加者（Study1 n=246, Study2 n=452）
+  ai_type: LLM (ChatGPT)
+  domains: [metacognition, reasoning]
+  context: problem_solving
+  direction: mixed
+  findings: >
+    LSAT論理推論課題でAI使用により成績は約3点向上するが、自己評価は約4点過大。
+    通常見られるダニング＝クルーガー効果は消失し、全員が一様に過大評価。
+    AIリテラシーが高いほどメタ認知精度が低い。初回出力をそのまま受容する傾向。
+  limitations: AI使用が強制された条件。長期的な学習で較正が改善するかは不明。
+  verification: abstract
+
+- id: melumad2025pnasnexus
+  title: "Experimental Evidence of the Effects of Large Language Models Versus Web Search on Depth of Learning"
+  authors: ["Melumad, S.", "Yun, J. H."]
+  year: 2025
+  venue: PNAS Nexus, 4(10), pgaf316
+  doi: 10.1093/pnasnexus/pgaf316
+  peer_reviewed: true
+  design: experiment
+  n: 10000
+  population: オンライン参加者（7実験、合計1万人超）
+  ai_type: LLM (ChatGPT, Google AI Overview)
+  domains: [learning, knowledge_depth]
+  context: information_seeking
+  direction: negative
+  findings: >
+    LLM要約で学んだ人はウェブ検索で学んだ人より知識が浅く、作成した助言は短く独創性が低く、
+    受け手に採用されにくい。事実内容とプラットフォームを統制しても、合成済み要約という形式自体が
+    能動的な探索・統合を阻害する。
+  limitations: 浅さの測定に自己報告を含む。オンライン短時間課題。
+  verification: abstract
+
+- id: stadler2024chb
+  title: "Cognitive ease at a cost: LLMs reduce mental effort but compromise depth in student scientific inquiry"
+  authors: ["Stadler, M.", "Bannert, M.", "Sailer, M."]
+  year: 2024
+  venue: Computers in Human Behavior, 160, 108386
+  doi: 10.1016/j.chb.2024.108386
+  peer_reviewed: true
+  design: rct
+  n: 91
+  population: 大学生（ドイツ）
+  ai_type: LLM (ChatGPT-3.5) vs Google
+  domains: [cognitive_load, reasoning]
+  context: information_seeking
+  direction: mixed
+  findings: >
+    LLM群は認知負荷が有意に低いが、最終的な推奨の推論・論証の質が低い。
+    推奨内容の均質性には群間差なし。
+  limitations: 短時間・単一トピック課題。
+  verification: abstract
+
+- id: shen2026coding
+  title: "How AI Impacts Skill Formation"
+  authors: ["Shen, J. H.", "Tamkin, A."]
+  year: 2026
+  venue: arXiv preprint (2601.20245) / Anthropic
+  url: https://arxiv.org/abs/2601.20245
+  peer_reviewed: false
+  design: rct
+  n: 52
+  population: Python経験のある（主に若手）ソフトウェア開発者
+  ai_type: AI coding assistant
+  domains: [skill_acquisition, conceptual_understanding]
+  context: programming
+  direction: mixed
+  findings: >
+    未知の非同期ライブラリ（Trio）の習得課題。AI群は概念理解・コード読解・デバッグの理解度テストで
+    低得点（報告では約17%低い）、作業時間の短縮は平均では有意でなかった。
+    AI群内でも使い方で差が大きく、理解を求める使い方は高得点（65–86%）、全面委任は低得点（24–39%）。
+  limitations: 新規ライブラリ習得に限定。短期。査読前。
+  verification: abstract
+
+- id: budzyn2025lancetgh
+  title: "Endoscopist deskilling risk after exposure to artificial intelligence in colonoscopy: a multicentre, observational study"
+  authors: ["Budzyń, K.", "Romańczyk, M.", "Kitala, D.", "others"]
+  year: 2025
+  venue: The Lancet Gastroenterology & Hepatology, 10, 896–903
+  doi: 10.1016/S2468-1253(25)00133-5
+  peer_reviewed: true
+  design: observational
+  n: 1443
+  population: ポーランド4施設の内視鏡医（AI非使用下の大腸内視鏡検査）
+  ai_type: CADe (computer-aided detection)
+  domains: [professional_skill, deskilling, attention]
+  context: medicine
+  direction: negative
+  findings: >
+    AI導入後、AIを使わない検査での腺腫発見率が28.4%→22.4%に低下（調整OR 0.69, 95%CI 0.53–0.89）。
+    継続的なAI曝露が内視鏡医の行動に負の影響を与える可能性。
+  limitations: 後ろ向き観察研究。導入後に検査件数がほぼ倍増するなど交絡の可能性。
+  verification: abstract
+
+- id: dratsch2023radiology
+  title: "Automation Bias in Mammography: The Impact of Artificial Intelligence BI-RADS Suggestions on Reader Performance"
+  authors: ["Dratsch, T.", "Chen, X.", "Rezazade Mehrizi, M.", "others"]
+  year: 2023
+  venue: Radiology, 307(4), e222176
+  doi: 10.1148/radiol.222176
+  peer_reviewed: true
+  design: experiment
+  n: 27
+  population: 経験の異なる放射線科医
+  ai_type: 診断支援AI（BI-RADS提案）
+  domains: [automation_bias, judgment]
+  context: medicine
+  direction: negative
+  findings: >
+    AIの誤った提案で正答率が大きく低下（未熟練19.8%、中等度24.8%、熟練45.5%）。
+    経験は影響を軽減するが消去しない。
+  limitations: LLMではない従来型AI。実験室条件。
+  verification: abstract
+
+- id: doshi2024sciadv
+  title: "Generative AI enhances individual creativity but reduces the collective diversity of novel content"
+  authors: ["Doshi, A. R.", "Hauser, O. P."]
+  year: 2024
+  venue: Science Advances, 10(28), eadn5290
+  doi: 10.1126/sciadv.adn5290
+  peer_reviewed: true
+  design: experiment
+  population: オンラインの短編執筆者と評価者
+  ai_type: LLM (GPT-4)
+  domains: [creativity, homogenization]
+  context: writing
+  direction: mixed
+  findings: >
+    AIのアイデアを使うと物語の創造性・質の評価が向上（特に元々創造性の低い書き手）。
+    一方、AI支援の物語同士はより類似し、集団レベルの多様性が低下する社会的ジレンマ。
+  limitations: 短編課題。長期的な創造力そのものの変化は測定していない。
+  verification: abstract
+
+- id: jakesch2023chi
+  title: "Co-Writing with Opinionated Language Models Affects Users' Views"
+  authors: ["Jakesch, M.", "Bhat, A.", "Buschek, D.", "Zalmanson, L.", "Naaman, M."]
+  year: 2023
+  venue: Proceedings of CHI 2023
+  doi: 10.1145/3544548.3581196
+  peer_reviewed: true
+  design: experiment
+  n: 1506
+  population: オンライン参加者
+  ai_type: LLM writing assistant
+  domains: [belief, opinion_formation, autonomy]
+  context: writing
+  direction: negative
+  findings: >
+    特定の意見に偏った執筆支援AIを使うと、書いた文章だけでなく事後調査での本人の意見も
+    AIの立場に近づく（潜在的説得）。
+  limitations: 単一トピック。効果の持続性は不明。
+  verification: abstract
+
+- id: dahmani2020scirep
+  title: "Habitual use of GPS negatively impacts spatial memory during self-guided navigation"
+  authors: ["Dahmani, L.", "Bohbot, V. D."]
+  year: 2020
+  venue: Scientific Reports, 10, 6310
+  doi: 10.1038/s41598-020-62877-0
+  peer_reviewed: true
+  design: longitudinal
+  n: 50
+  population: 運転者（3年後追跡 n=13）
+  ai_type: GPS navigation（先行技術）
+  domains: [spatial_memory]
+  context: everyday
+  direction: negative
+  findings: >
+    生涯GPS使用量が多いほど自力ナビゲーション時の空間記憶が低い。3年追跡でGPS使用の増加は
+    海馬依存の空間記憶の低下と関連。方向感覚の悪さがGPS使用の原因ではないことを示唆。
+  limitations: 追跡標本が小さい（n=13）。
+  verification: abstract
+
+- id: sparrow2011science
+  title: "Google Effects on Memory: Cognitive Consequences of Having Information at Our Fingertips"
+  authors: ["Sparrow, B.", "Liu, J.", "Wegner, D. M."]
+  year: 2011
+  venue: Science, 333(6043), 776–778
+  doi: 10.1126/science.1207745
+  peer_reviewed: true
+  design: experiment
+  population: 大学生
+  ai_type: Internet search（先行技術）
+  domains: [memory, transactive_memory]
+  context: information_seeking
+  direction: mixed
+  findings: >
+    後でアクセスできると期待する情報は内容自体の想起が低く、「どこにあるか」の想起が高い
+    （交換記憶の外部化）。
+  limitations: 一部効果（Google Stroop）は追試で再現されていない。
+  verification: abstract
+
+- id: risko2016tics
+  title: "Cognitive Offloading"
+  authors: ["Risko, E. F.", "Gilbert, S. J."]
+  year: 2016
+  venue: Trends in Cognitive Sciences, 20(9), 676–688
+  doi: 10.1016/j.tics.2016.07.002
+  peer_reviewed: true
+  design: review
+  ai_type: 外部ツール一般（理論）
+  domains: [cognitive_offloading, metacognition]
+  context: theory
+  direction: theory
+  findings: >
+    認知的オフローディングを「課題の認知的要求を減らすための身体的行為」と定義し、
+    オフローディングの判断にメタ認知（自己能力評価）が関わる枠組みを提示。本研究の理論的基盤。
+  verification: abstract
+
+- id: benge2025nhb
+  title: "A meta-analysis of technology use and cognitive aging"
+  authors: ["Benge, J. F.", "Scullin, M. K."]
+  year: 2025
+  venue: Nature Human Behaviour, 9(7)
+  doi: 10.1038/s41562-025-02159-9
+  peer_reviewed: true
+  design: meta_analysis
+  n: 411430
+  population: 50歳以上の成人（57研究）
+  ai_type: デジタル技術一般（AI特化ではない）
+  domains: [cognitive_aging, dementia_risk]
+  context: everyday
+  direction: positive
+  findings: >
+    デジタル技術使用は認知障害のオッズ低下（OR 0.42）および認知機能低下の遅延（HR 0.74）と関連。
+    「デジタル認知症」仮説より「技術的予備力（technological reserve）」仮説を支持。
+  limitations: 観察研究の統合で因果は不明。AIに特化していない。
+  verification: abstract
+
+- id: sun2026edpsychrev
+  title: "Effects of Generative AI Tools On Students' Critical Thinking: A Three-Level Meta-Analysis"
+  authors: ["Sun", "others"]
+  year: 2026
+  venue: Educational Psychology Review
+  doi: 10.1007/s10648-026-10180-1
+  peer_reviewed: true
+  design: meta_analysis
+  n: 26
+  population: 学生（26研究・47効果量）
+  ai_type: Generative AI (education)
+  domains: [critical_thinking]
+  context: education
+  direction: positive
+  findings: >
+    生成AI支援学習は批判的思考パフォーマンスの向上と関連（g = 0.544, 95%CI [0.314, 0.775]）。
+    異質性が大きく、AIのチュータリング機能や「規定された使用方法」が調整変数。
+  limitations: >
+    介入中の課題成績を測る研究が多く、AIなしでの能力保持とは区別が必要。一部サブグループは2研究のみ。
+  verification: abstract
+  notes: n は研究数。著者名は原典で要確認。
+
+- id: hoque2026acp
+  title: "Exploring Potential Cognitive Decline in Future Generations due to Over-Reliance on Artificial Intelligence (AI): The Mediating Role of User Characteristics"
+  authors: ["Hoque", "others"]
+  year: 2026
+  venue: Applied Cognitive Psychology
+  doi: 10.1002/acp.70269
+  peer_reviewed: true
+  design: survey
+  ai_type: AI (general)
+  domains: [cognitive_decline, dependence]
+  context: everyday
+  direction: mixed
+  findings: >
+    AI依存と認知機能低下の関連を示す一方、利用者特性が媒介し、認知機能の低下は
+    AI使用の不可避な帰結ではないと結論。
+  verification: abstract
+  notes: 著者・標本サイズは原典で要確認。
+
+- id: fenici2026humaff
+  title: "The Impact of Generative AI on Critical Thinking: Cognitive Scaffolding, Substitution, and the Risk of Deskilling"
+  authors: ["Fenici, M."]
+  year: 2026
+  venue: Human Affairs
+  doi: 10.1515/humaff-2026-0011
+  peer_reviewed: true
+  design: review
+  ai_type: Generative AI
+  domains: [critical_thinking, deskilling]
+  context: theory
+  direction: theory
+  findings: >
+    信頼→委任→「補完的」から「代替的」委任への漂流、という過程で独立した批判的思考が
+    侵食されうるとする理論モデル。足場かけ（scaffolding）と代替（substitution）を区別。
+  verification: abstract
