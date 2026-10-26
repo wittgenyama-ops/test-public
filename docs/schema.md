@@ -20,7 +20,8 @@
 | `direction` | ○ | 認知能力への効果の方向 |
 | `findings` | ○ | 主要な知見（日本語要約） |
 | `limitations` | | 限界 |
-| `verification` | ○ | `abstract`（抄録・二次情報で確認）/ `fulltext`（本文確認済み） |
+| `verification` | ○ | `abstract`（抄録・二次情報で確認）/ `detailed`（本文未読だが、公式解説・出版社抄録・訂正通知・批判論文など複数の独立ソースで方法と主要数値を照合済み）/ `fulltext`（本文確認済み） |
+| `outcomes` | | 測定したアウトカム: `during_ai`（AI使用中の成績）, `without_ai`（AIなしでの事後成績・保持・転移）, `process`（行動・プロセス指標）, `self_report`, `metacognition`（自己評価の正確さ）, `neural` |
 | `notes` | | 補足 |
 
 ## 許容値

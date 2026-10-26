@@ -39,6 +39,14 @@ pandoc paper/draft.md --citeproc --bibliography paper/references.bib -o paper/dr
 
 ## 現状（2026-10-26）
 
-- 初期コーパス **20件**（`analysis/evidence_matrix.md`）。全件が抄録・二次情報レベルでの確認なので、
-  論文に使う前に原典で数値・著者名を確認し、`verification: fulltext` に更新してください
+- 収録文献 **27件**（`analysis/evidence_matrix.md`）
+- 主要7文献は読書ノートあり（`notes/`）。ただし本文は未読で、複数の独立ソースで方法と数値を照合した段階（`verification: detailed`）
+- テーマ別の分析: 批判的思考（`analysis/critical_thinking.md`）、電卓とAIの比較（`analysis/calculator_vs_ai.md`）
 - 暫定的な主張と研究ギャップは `analysis/synthesis.md` を参照
+
+### 本文確認に必要なこと
+
+クラウド環境のネットワークポリシーで論文のホストがブロックされているため、次のどちらかが必要です。
+
+1. 環境設定の Network access で以下のドメインを許可する: `arxiv.org`, `export.arxiv.org`, `www.pnas.org`, `academic.oup.com`, `pmc.ncbi.nlm.nih.gov`, `api.openalex.org`, `bera-journals.onlinelibrary.wiley.com`, `www.sciencedirect.com`, `www.jstor.org`
+2. PDF を `pdfs/`（git 管理外）に置く

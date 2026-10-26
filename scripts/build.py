@@ -24,10 +24,13 @@ DESIGNS = {"rct", "experiment", "longitudinal", "observational", "survey",
 DIRECTIONS = {"negative", "positive", "mixed", "null", "theory"}
 CONTEXTS = {"education", "writing", "programming", "medicine", "work",
             "information_seeking", "problem_solving", "everyday", "theory"}
-VERIFICATION = {"abstract", "fulltext"}
+VERIFICATION = {"abstract", "detailed", "fulltext"}
+OUTCOMES = {"during_ai", "without_ai", "process", "self_report", "metacognition", "neural"}
 
 DIRECTION_JA = {"negative": "負", "positive": "正", "mixed": "条件依存",
                 "null": "効果なし", "theory": "理論"}
+OUTCOME_JA = {"during_ai": "AI使用中", "without_ai": "AIなし", "process": "プロセス",
+              "self_report": "自己報告", "metacognition": "メタ認知", "neural": "神経"}
 DESIGN_JA = {"rct": "RCT", "experiment": "実験", "longitudinal": "縦断",
              "observational": "観察", "survey": "調査", "qualitative": "質的",
              "meta_analysis": "メタ分析", "review": "レビュー/理論"}
@@ -55,6 +58,9 @@ def validate(papers):
                              ("context", CONTEXTS), ("verification", VERIFICATION)):
             if p.get(key) is not None and p[key] not in allowed:
                 errors.append(f"{pid}: {key}='{p[key]}' は許容値ではありません {sorted(allowed)}")
+        for o in p.get("outcomes") or []:
+            if o not in OUTCOMES:
+                errors.append(f"{pid}: outcomes の '{o}' は許容値ではありません {sorted(OUTCOMES)}")
     return errors
 
 
@@ -77,6 +83,7 @@ def build_matrix(papers):
         "",
         f"収録文献数: **{len(papers)}**　"
         f"（査読済み {sum(p['peer_reviewed'] for p in papers)}、"
+        f"詳細照合済み {sum(p['verification'] == 'detailed' for p in papers)}、"
         f"本文確認済み {sum(p['verification'] == 'fulltext' for p in papers)}）",
         "",
         "## 認知領域 × 効果の方向",
@@ -93,13 +100,26 @@ def build_matrix(papers):
         lines.append(f"| {d} | " + " | ".join(str(c[x] or "") for x in dirs)
                      + f" | {sum(c.values())} |")
 
+    lines += ["", "## 測定したアウトカム × 効果の方向", "",
+              "「AI使用中」の成績を測った研究と「AIなし」の能力を測った研究で結果の傾向が異なるかを見る。", "",
+              "| アウトカム | " + " | ".join(DIRECTION_JA[d] for d in dirs) + " | 計 |",
+              "|---" * (len(dirs) + 2) + "|"]
+    by_outcome = collections.defaultdict(collections.Counter)
+    for p in papers:
+        for o in p.get("outcomes") or []:
+            by_outcome[o][p["direction"]] += 1
+    for o in OUTCOME_JA:
+        c = by_outcome[o]
+        lines.append(f"| {OUTCOME_JA[o]} | " + " | ".join(str(c[x] or "") for x in dirs)
+                     + f" | {sum(c.values())} |")
+
     lines += ["", "## 研究デザイン別件数", "", "| デザイン | 件数 |", "|---|---|"]
     for d, n in collections.Counter(p["design"] for p in papers).most_common():
         lines.append(f"| {DESIGN_JA[d]} | {n} |")
 
     lines += ["", "## 文献一覧", "",
-              "| 年 | 文献 | デザイン | N | 場面 | 方向 | 主要知見 | 確認 |",
-              "|---|---|---|---|---|---|---|---|"]
+              "| 年 | 文献 | デザイン | N | 場面 | アウトカム | 方向 | 主要知見 | 確認 |",
+              "|---|---|---|---|---|---|---|---|---|"]
     for p in papers:
         first = p["authors"][0].split(",")[0]
         etal = " et al." if len(p["authors"]) > 1 else ""
@@ -107,6 +127,7 @@ def build_matrix(papers):
         lines.append(
             f"| {p['year']} | [{first}{etal}]({link(p)}) `{p['id']}`{pr} | "
             f"{DESIGN_JA[p['design']]} | {p.get('n', '')} | {p['context']} | "
+            f"{'・'.join(OUTCOME_JA[o] for o in p.get('outcomes') or [])} | "
             f"{DIRECTION_JA[p['direction']]} | {cell(p['findings'])} | {p['verification']} |")
     return "\n".join(lines) + "\n"
 
