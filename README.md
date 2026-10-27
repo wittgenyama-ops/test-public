@@ -37,16 +37,17 @@ python scripts/build.py
 pandoc paper/draft.md --citeproc --bibliography paper/references.bib -o paper/draft.docx
 ```
 
-## 現状（2026-10-26）
+## 現状（2026-10-27）
 
 - 収録文献 **27件**（`analysis/evidence_matrix.md`）
-- 主要7文献は読書ノートあり（`notes/`）。ただし本文は未読で、複数の独立ソースで方法と数値を照合した段階（`verification: detailed`）
+- 主要7文献と Lee (2025)、Rismanchian (2026)、Stanković (2026) の計10件は**本文確認済み**（`verification: fulltext`）。読書ノートは `notes/`
 - テーマ別の分析: 批判的思考（`analysis/critical_thinking.md`）、電卓とAIの比較（`analysis/calculator_vs_ai.md`）
 - 暫定的な主張と研究ギャップは `analysis/synthesis.md` を参照
 
-### 本文確認に必要なこと
+### 本文を取得できていない文献
 
-クラウド環境のネットワークポリシーで論文のホストがブロックされているため、次のどちらかが必要です。
+arXiv、PMC（Europe PMC 経由）、一部の大学リポジトリには接続できる。次は未取得:
+- 電卓のメタ分析（Hembree & Dessart 1986, Ellington 2003）: JSTOR がボット確認画面を返し、テネシー大学のリポジトリは接続不可
+- Shaw & Nave (2026, SSRN)、Gerlich (2025)、Sun et al. (2026) など: 未試行または出版社サイトがブロック
 
-1. 環境設定の Network access で以下のドメインを許可する: `arxiv.org`, `export.arxiv.org`, `www.pnas.org`, `academic.oup.com`, `pmc.ncbi.nlm.nih.gov`, `api.openalex.org`, `bera-journals.onlinelibrary.wiley.com`, `www.sciencedirect.com`, `www.jstor.org`
-2. PDF を `pdfs/`（git 管理外）に置く
+PDF を `pdfs/`（git 管理外）に置けば本文確認を進められる。

@@ -12,7 +12,7 @@
 #   metacognition = 自己評価の正確さ / neural = 神経指標
 # 新しい文献は inbox/ で検討してからここに追加する。
 
-# ---------------------------------------------------------------- 主要7文献
+# ---------------------------------------------------------------- 主要7文献（本文確認済み 2026-10-27）
 
 - id: bastani2025pnas
   title: "Generative AI without guardrails can harm learning: Evidence from high school mathematics"
@@ -23,21 +23,27 @@
   peer_reviewed: true
   design: rct
   n: 1000
-  population: トルコの大規模高校1校の生徒（約1000名、2023–24年度秋学期）
+  population: トルコの大規模高校1校の9〜11年生、約50クラス（優等クラスを除く）、2023年秋学期
   ai_type: LLM (GPT-4; GPT Base vs GPT Tutor)
-  domains: [learning, skill_acquisition, mathematics]
+  domains: [learning, skill_acquisition, mathematics, metacognition]
   context: education
-  outcomes: [during_ai, without_ai, process]
+  outcomes: [during_ai, without_ai, process, self_report]
   direction: mixed
   findings: >
-    授業内の数学演習でGPT-4チューターを評価したRCT。練習問題の成績は対照群比で
-    GPT Base +48%、GPT Tutor（ヒントのみ・学習保護型プロンプト）+127%。
-    アクセスを外した試験ではGPT Base群が非利用群より17%低下し、GPT Tutorでは悪影響が
-    ほぼ緩和された。GPT Baseの利用者は答えを丸写しする割合が高く、AIを「松葉杖」として使っていた。
+    事前登録されたクラス単位のRCT。90分×4回の授業で、前半は演習（AIあり/なし）、後半は
+    教科書・PCなしの試験（各問は演習問題と概念的にほぼ同じ）。演習成績は対照群（平均0.284）比で
+    GPT Base +0.137（+48%）、GPT Tutor +0.361（+127%）。試験ではGPT Baseが −0.054（対照0.321の17%減、p<0.05）、
+    GPT Tutorは −0.004で有意差なし（向上もなし）。GPT Baseは同じ問題に10回尋ねると正答51%
+    （論理的誤り42%、計算誤り8%）。GPT Baseの論理的誤りは演習成績を下げたが、対応する試験問題には
+    影響せず、計算誤りも論理的誤りと同程度に演習成績を下げた → 生徒は解答を読まずに写していた
+    （「松葉杖」）。生徒の自己評価は楽観的で、GPT Base群は成績が下がったのに「学びが少なかった」と
+    感じておらず、GPT Tutor群は成績が上がっていないのに「よくできた」と感じていた。
+    AIによる成績の散らばりの縮小（弱い生徒ほど得をする）は、AIを外すと消えた。
   limitations: >
-    単一国・単一校・単一科目。長期効果は不明。2025年8月20日付で訂正通知
-    （doi:10.1073/pnas.2518204122）が出ており、内容は未確認なので数値の引用前に要確認。
-  verification: detailed
+    単一校・数学のみ・短期（同じ授業内の試験）。生成AIが新しかった2023年秋の実施。
+    2025-08-26付の訂正は著者所属の誤記の訂正のみで、結果には影響しない（doi:10.1073/pnas.2518204122）。
+  verification: fulltext
+  notes: 本文は PMC12232635（Europe PMC 経由の全文XML）で確認。事前登録 aspredicted.org/4DL_Q3J。
 
 - id: fan2025bjet
   title: "Beware of metacognitive laziness: Effects of generative artificial intelligence on learning motivation, processes, and performance"
@@ -49,20 +55,25 @@
   peer_reviewed: true
   design: rct
   n: 117
-  population: 大学生
-  ai_type: LLM (ChatGPT)
+  population: 中国の大学生（英語が第二言語、2023年7〜9月）。対照30・ChatGPT 35・人間の専門家25・チェックリスト27
+  ai_type: LLM (ChatGPT 4.0。課題の範囲に制限し、エッセイの代筆はせず助言のみ)
   domains: [metacognition, self_regulated_learning, learning]
   context: writing
   outcomes: [during_ai, without_ai, process, self_report]
   direction: mixed
   findings: >
-    ChatGPT・人間の専門家・ライティング分析/チェックリスト・支援なしの4条件で比較した実験。
-    マルチチャネルの学習ログで自己調整学習のプロセスを分析。ChatGPT群はエッセイ得点の改善が最大だったが、
-    知識獲得と転移は他群と有意差なし。課題後の内発的動機づけも差なし。自己調整学習の頻度と順序は群間で
-    有意に異なり、ChatGPT群は自省の代わりにAIへフィードバックを求めに戻る傾向。著者はこれを
-    「メタ認知的怠惰」と呼ぶ。
-  limitations: 単一の実験室課題、小標本、短期。知識獲得・転移の効果量は本文で要確認。
-  verification: detailed
+    英語の読解・作文（2時間）と改訂（1時間）。改訂段階だけ条件で支援が異なる。エッセイ得点の改善は
+    ChatGPT群が他の3群より有意に大きい（F=4.549, p=0.005, η²=0.108。対照比 +1.97点）。
+    知識獲得（事前・事後テスト）と転移テストは4群で差なし（転移 F=0.019, p=0.996）。
+    内発的動機づけも差なし。学習ログの過程分析では、ChatGPT群は「改訂→ChatGPT→改訂」のループが中心で、
+    対照群や人間の専門家群に比べ、改訂と読解・課題確認・評価の結びつきが弱い。ただし監視・計画の頻度は
+    群間差なし、評価の頻度が増えたのはチェックリスト群のみ。著者はこれを「メタ認知的怠惰」と名づける。
+  limitations: >
+    小標本・単一課題・短期。ChatGPTは代筆しないよう制限されていた。知識獲得・転移は対照群とも
+    差がない（AIで低下したのではなく、どの支援でも増えなかった）。著者自身が「メタ認知的怠惰」を
+    測る確立した尺度がないことを限界に挙げる。
+  verification: fulltext
+  notes: 読んだのは arXiv 版（2412.09315）。BJET の掲載版との異同は未確認。
 
 - id: shen2026coding
   title: "How AI Impacts Skill Formation"
@@ -73,24 +84,26 @@
   peer_reviewed: false
   design: rct
   n: 52
-  population: Pythonを週1回以上・1年以上使う（主に若手の）ソフトウェア開発者。Trio未経験
-  ai_type: AI coding assistant
+  population: クラウドワーカーのプロ・フリーランス開発者（Python 1年以上・週1回以上、Trio未経験）。各群26名
+  ai_type: チャット型AIコーディング支援
   domains: [skill_acquisition, conceptual_understanding, critical_thinking]
   context: programming
-  outcomes: [during_ai, without_ai, process]
+  outcomes: [during_ai, without_ai, process, self_report]
   direction: mixed
   findings: >
-    未知の非同期ライブラリTrioで2つの機能を実装する課題（35分）の直後に、AIなしの理解度テスト（25分）。
-    AI群の平均50%に対し手作業群67%（Cohen's d = 0.738, p = 0.01）。差が最も大きかったのは
-    デバッグ問題。完了時間はAI群が約2分速いが有意でない（p = 0.391）。
-    AI群内の使い方で差が大きく、低得点型は「全面委任」(n=4, 39%)、「段階的依存」(n=4, 35%)、
-    「AIに反復デバッグさせる」(n=4, 24%)、高得点型は「生成後に理解のための質問」(n=2, 86%)、
-    「コードと説明の両方を要求」(n=3, 68%)、「概念的な質問のみ・エラーは自力解決」(n=7, 65%)。
+    事前登録されたRCT。Trioを使う2課題（最大35分）の後、AIなしの理解度テスト（27点満点）。
+    AI群は4.15点低い（17%、Cohen's d=0.738, p=0.01。ウォームアップ時間を統制しても d=0.725, p=0.016）。
+    完了時間の差は有意でない（p=0.391）。全経験年数層で対照群の方が高得点。
+    事前登録外の探索的分析では、差が最大なのはデバッグ問題、最小はコード読解問題。
+    対照群の方が「学んだ」という自己評価が高かった。AI群の使い方は6類型（質的分析）:
+    全面委任(n=4)・段階的依存(n=4)・AIに反復デバッグ(n=4)は40%未満、
+    生成後に理解の質問(n=2, 86%)・コードと説明(n=3, 68%)・概念的質問のみ(n=7, 65%)は65%以上。
   limitations: >
-    小標本、査読前、理解度は課題直後のみ測定で長期の技能形成は不明。使い方の類型は質的分析で
-    因果を示さない。エージェント型ツールでは効果がより大きい可能性を著者自身が指摘。
-  verification: detailed
-  notes: 方法と数値は著者による公式解説（anthropic.com/research/AI-assistance-coding-skills）で確認。
+    小標本・1時間の課題・直後テストのみ・査読前。類型は小さく因果を示さない。
+    パイロットでは対照群の25〜35%がAIを無断使用しており、画面録画で遵守を確認した。
+    著者はエージェント型ツールでは効果がさらに大きいと予想。
+  verification: fulltext
+  notes: 事前登録 osf.io/w49e7。
 
 - id: stadler2024chb
   title: "Cognitive ease at a cost: LLMs reduce mental effort but compromise depth in student scientific inquiry"
@@ -101,19 +114,23 @@
   peer_reviewed: true
   design: rct
   n: 91
-  population: 大学生（ドイツ）
+  population: ドイツの大学生（医学・薬学・生物学を除く）。Google 47名、ChatGPT-3.5 44名。2023年4〜5月
   ai_type: LLM (ChatGPT-3.5) vs Google
   domains: [cognitive_load, reasoning, critical_thinking]
   context: information_seeking
-  outcomes: [during_ai, self_report]
+  outcomes: [without_ai, self_report]
   direction: mixed
   findings: >
-    日焼け止めのナノ粒子という社会科学的問題を、ChatGPT-3.5かGoogleで調べて推奨を書く個人単位の無作為化実験
-    （約20分の曝露、事前知識を共変量）。LLM群は認知負荷が有意に低いが、推奨の根拠づけの質が低い。
-    質は全体に低く最高でも7点中4点。根拠づけの質は学習に寄与する負荷（germane load）と正の相関（r≈0.38）。
-    推奨内容の均質性には群間差なし。
-  limitations: 短時間・単一トピック。遅延保持・転移の測定なし。各負荷の効果量は本文で要確認。
-  verification: detailed
+    日焼け止めのナノ粒子の健康リスクについて20分間調べ、その後メモも画面も見ずに推奨と根拠を書く。
+    認知負荷（自己報告、7段階）はLLM群が3側面とも低い（学習に寄与する負荷 4.79→3.14, η²=0.27）。
+    根拠の質（専門家と作成した7観点のうち挙げた数。評定者一致κ=0.92）はLLM群が低い
+    （1.87→1.20, F=11.18, p=0.001, η²=0.11）。この差は学習に寄与する負荷によって完全に媒介された
+    （間接効果 β=0.15, p=0.020）。推奨の分布（賛成・中立・反対）には差なし。
+  limitations: >
+    小標本・単一トピック・1回のみ。根拠の質は「挙げた観点の数」で、論証の妥当性そのものではない。
+    LLM群は早く終わっても20分間課題を続けさせられた。発話思考法やログの分析はない。
+  verification: fulltext
+  notes: 本文はLMU Munichのリポジトリ（CC BY）で確認。前回記載した「r≈0.38」は本文の表から確認できなかったため削除。
 
 - id: melumad2025pnasnexus
   title: "Experimental evidence of the effects of large language models versus web search on depth of learning"
@@ -124,21 +141,27 @@
   peer_reviewed: true
   design: experiment
   n: 10462
-  population: オンライン参加者（本文4実験＋補足資料の追試3実験）
-  ai_type: LLM (ChatGPT, Google AI Overview)
-  domains: [learning, knowledge_depth, critical_thinking]
+  population: Prolific・MTurk・大学の実験室の参加者（本文4実験＋補足資料の追試3実験、多くは事前登録）
+  ai_type: LLM (GPT-3.5-turbo / GPT-4o / Google AI Overview)
+  domains: [learning, knowledge_depth, critical_thinking, homogenization]
   context: information_seeking
-  outcomes: [during_ai, process, self_report]
+  outcomes: [without_ai, process, self_report]
   direction: negative
   findings: >
-    家庭菜園・健康的な生活などのテーマを、Googleのリンクで学ぶかLLM要約で学ぶかを無作為に割り当て、
-    学んだ内容をもとに助言を書かせた。LLM群は知識が浅いと自己報告し、検索結果に関わる時間が短く、
-    助言は短く・事実への言及が少なく・独創性が低く・他者の助言と似ており、受け手に採用されにくい。
-    事実内容とプラットフォームを統制しても効果は残る。リンク付きChatGPTでも効果は残り、
-    約800人中リンクを1つでもクリックしたのは約4分の1。学習努力の低下が媒介。
+    テーマ（家庭菜園・健康的な生活・詐欺被害）をGoogleかLLMで調べ、別ページで友人への助言を書く。
+    実験1（n=1,104）: LLM群は検索時間が短く（743秒→585秒、クエリ数は同程度）、新しく学んだ・
+    知識の所有感が低いと自己報告し、助言は短く（95語→85語）、事実への言及が少なく、助言同士の類似度が
+    約3倍（コサイン類似度0.057→0.159）。実験2（n=1,979）: 事実内容を同一にして形式だけ変えても同じ結果。
+    実験3（実験室, n=250）: Google の AI Overview と通常の検索結果でも同じ。実験4（n=1,493）:
+    盲検の受け手はLLM群の助言を役に立たない・情報が少ない・信頼できないと評価し、採用意向も低い。
+    補足の追試（n=2,402）では、リンク付きLLM要約でも効果が残り、リンクをクリックしたのは26%。
   limitations: >
-    知識の深さに自己報告を含む。短時間のオンライン課題。標本サイズの報告値に揺れあり（10,426 / 10,462）。
-  verification: detailed
+    知識の深さを客観的なテストでは測っておらず、自己報告・助言文の言語特徴・受け手の評価による。
+    多くの効果は5段階尺度で0.1〜0.4点程度。著者自身が、標準テストのような別の指標ではLLMが有利な
+    可能性や、専門的な領域では一般化しない可能性を挙げる。総標本数は本文中でも10,462と10,426が混在し、
+    実験4の選択割合の記述も表記が不整合（要確認）。
+  verification: fulltext
+  notes: 本文は PMC12560091（Europe PMC 経由の全文XML）で確認。
 
 - id: kosmyna2025brain
   title: "Your Brain on ChatGPT: Accumulation of Cognitive Debt when Using an AI Assistant for Essay Writing Task"
@@ -149,23 +172,28 @@
   peer_reviewed: false
   design: experiment
   n: 54
-  population: 大学生・若年成人（ボストン地域）
+  population: ボストン地域5大学の18〜39歳（平均22.9歳）。各群18名、第4セッションは18名（各9名）
   ai_type: LLM (ChatGPT)
   domains: [memory, neural_engagement, ownership]
   context: writing
   outcomes: [during_ai, without_ai, neural, self_report]
   direction: negative
   findings: >
-    LLM群・検索エンジン群・ツールなし群が同じ条件で3回エッセイを執筆し、EEGで脳の結合を記録。
-    結合は外部支援の量に応じて低下（ツールなし>検索>LLM）。LLM群は直前に書いた自分の文の引用が困難で、
-    作品の所有感も低い。第4セッション（n=18）でLLM群をツールなしに、ツールなし群をLLMに入れ替えたところ、
-    LLM→ツールなし群はアルファ・ベータ帯の関与が弱く、ツールなし→LLM群は想起が高かった。
+    年齢・性別でバランスをとって無作為に3群（LLMのみ／検索エンジンのみ／ツールなし）に割り当て、
+    SATの課題文から選んで20分でエッセイを書く。4か月にわたり3セッション＋任意の第4セッション。
+    第1セッション直後、LLM群は83.3%（15/18）が自分の文を引用できず、正しく引用できた人は0/18
+    （検索群・ツールなし群は引用できなかった人がそれぞれ2/18）。ただし第2セッションでは全群でほぼ引用でき、
+    正しく引用できなかったのはLLM群4名、他群2名ずつ。EEGの結合はツールなし>検索>LLMと著者は報告。
+    第4セッション（既出テーマから選択）では、LLM→ツールなし群は多くの帯域で結合が弱く、
+    ツールなし→LLM群は結合が高かったが、正しく引用できたのは1/9。
   limitations: >
-    小標本（第4セッションはn=18）、査読前、単一課題。第4セッションは新しいテーマでなく既出テーマから選択。
-    Stanković et al. (2026) が、標本サイズ、分析の再現性、EEG解析の方法、結果報告の不整合、
-    透明性の5点を批判し、「ツールなし群が最も強い結合」という主張は結果の単純化だと指摘
-    （stankovic2026comment）。
-  verification: detailed
+    小標本・単一地域・査読前。著者自身が他のLLMや課題への一般化はできないとする。
+    Stanković et al. (2026) によれば、必要標本数は約159名と推定され検出力不足。約1000回のANOVAに対する
+    多重比較補正が不明確。「有意な結合」は群間の相対的な差で、絶対的な脳活動の強さではない。
+    ベータ帯ではLLM群の方が結合が多い比較もある。第4セッションの引用結果は本文と考察で記述が逆。
+    検索群には引用の低下がなく、「委任の量に応じた認知的負債」という解釈と合わない。
+  verification: fulltext
+  notes: 本文（arXiv）は方法・インタビュー結果・限界の節を確認。EEG解析の節は精読していない。
 
 - id: fernandes2026chb
   title: "AI makes you smarter but none the wiser: The disconnect between performance and metacognition"
@@ -177,21 +205,29 @@
   peer_reviewed: true
   design: experiment
   n: 698
-  population: オンライン参加者（Study1 n=246, Study2 n=452）
-  ai_type: LLM (ChatGPT)
+  population: Prolificの米国成人。Study1 n=246（AIありのみ）、Study2 n=452（AIあり245・AIなし207）
+  ai_type: LLM (ChatGPT-4o)
   domains: [metacognition, reasoning, critical_thinking]
   context: problem_solving
   outcomes: [during_ai, metacognition]
   direction: mixed
   findings: >
-    LSATの論理推論問題20問をAIを使って解かせた実験。成績は標準集団より約3点高いが、
-    自己評価は実際より約4点過大。計算モデルで個人差を分析すると、この課題で通常見られる
-    ダニング＝クルーガー効果がAI使用で消失し、全体が一様に過大評価に。AIリテラシーが高いほど
-    メタ認知の正確さが低い。初回出力をそのまま受け入れ、確認しない傾向。Study 2で再現。
+    LSATの論理推論20問。各問で1回以上ChatGPTに尋ねることを必須にした。
+    Study 1（準実験、既存のAIなし標本3,543名と比較）: 正答 12.98 対 9.45（d=1.23）。ただしChatGPT単独
+    （13.65）よりわずかに低い。自己評価は16.50で約3.5点の過大評価（d=0.93。AIなし標本は d=0.29）。
+    1問あたりの質問は平均1.15回で、46%は毎問1回だけ。確信度による正誤の弁別（AUC）は0.62。
+    技術的なAIリテラシーが高いほど過大評価が大きい。
+    Study 2（同時期に募集した2群の比較、自己評価の正確さに報酬）: 正答 13.31 対 9.71、自己評価は
+    17.13 対 13.62で、過大評価の大きさは両群とも約4点でほぼ同じ。AUCも0.62 対 0.61で同じ。
+    ベイズモデルの過大評価バイアスにも群間の明確な差はない（0.63 対 0.75）。
+    一貫したのは、AIなし群にあるダニング＝クルーガー効果（成績が低い人ほど過大評価）が
+    AIあり群では弱まり、全員が一様に過大評価する点。
   limitations: >
-    AI使用が強制された条件で、AIなし統制群との直接比較でなく標準集団との比較。
-    2025年10月オンライン公開、2026年2月号掲載。Study 2の報酬設計などは本文で要確認。
-  verification: detailed
+    Study 1 は無作為化されていない（著者も示唆的な証拠とする）。Study 2 は著者が「無作為化した追試」と
+    呼ぶが、割付の手続きの記述は簡潔。AIの使用を強制している。LSATは訓練データに含まれる可能性。
+    AIリテラシーは自己報告。
+  verification: fulltext
+  notes: 本文はAalto大学リポジトリの出版版PDFで確認。
 
 # ---------------------------------------------------------------- 批判的思考・推論
 
@@ -225,18 +261,25 @@
   peer_reviewed: true
   design: survey
   n: 319
-  population: 知識労働者（936件の使用事例）
+  population: 週1回以上業務で生成AIを使う英語話者の知識労働者（936件の使用事例）
   ai_type: Generative AI (general)
   domains: [critical_thinking, trust]
   context: work
   outcomes: [self_report]
   direction: mixed
   findings: >
-    批判的思考をブルームの分類で捉えた調査。AIへの信頼が高いほど批判的思考の自己報告が少なく、
-    自分の能力への自信が高いほど多い。批判的思考の中身が「情報収集・問題解決」から
-    「検証・統合・タスクの監督（stewardship）」へ移行。
-  limitations: 自己報告、横断的。批判的思考を客観的に測定していない。回帰係数は本文で要確認。
-  verification: abstract
+    批判的思考をブルームの分類（知識・理解・応用・分析・統合・評価）で操作化した調査。936事例の約60%で
+    何らかの批判的思考を実行したと報告。混合効果ロジスティック回帰で、「そのタスクをAIがうまくやれる」という
+    確信は批判的思考の実行と負の関連（β=−0.69, p<0.001）。自分でできるという確信（β=0.26, p=0.026）、
+    AIの出力を評価できるという確信（β=0.31, p=0.046）、日頃から振り返る傾向（β=0.52, p<0.001）は正の関連。
+    生成AIへの一般的な信頼は有意な関連なし。「労力が減った」と答えた割合は知識72%・理解79%・応用69%・
+    分析72%・統合76%で、評価が最も低く55%。批判的思考の中身は、情報の検証、AIの出力の統合、
+    タスクの監督へ移っていた。阻害要因は気づき（AIへの依存）・動機（時間がない）・能力（AIの出力を改善できない）。
+  limitations: >
+    自己報告・横断調査。著者自身が、参加者が「AIを使う労力の減少」と「批判的思考の労力の減少」を
+    混同していた可能性、自己の確信が客観的な専門性と対応しない可能性、若く技術に慣れた層への偏りを挙げる。
+  verification: fulltext
+  notes: 本文は著者サイトのPDFで、結果と限界の節を確認。
 
 - id: shaw2026surrender
   title: "Thinking—Fast, Slow, and Artificial: How AI is Reshaping Human Reasoning and the Rise of Cognitive Surrender"
@@ -274,10 +317,14 @@
   outcomes: []
   direction: theory
   findings: >
-    kosmyna2025brain への方法論的コメント。データセットとNLPパイプラインは評価しつつ、
-    標本サイズ、分析の再現性、EEG解析の方法、結果報告の不整合、透明性の5点を批判。
-    一部の参加者の除外基準が不明確で、EEG分析の一部が部分標本のみで報告されていると指摘。
-  verification: abstract
+    kosmyna2025brain への方法論的コメント。(1) 検出力: 3群×4回の反復測定ANOVAに必要な標本数は約159名と推定され、
+    54名では不足。テーマ別の分析は1群2〜4本の作文に基づく。(2) 報告の不整合: 存在しない群名の図、
+    第4セッションの引用結果の向きが本文と考察で逆、満足度の記述が結果と合わない。(3) EEG: 最大1000回の
+    ANOVAの選び方とFDR補正の水準が不明。「有意な結合」は群間の相対差で、結合が少ないことは脳活動が
+    弱いことを意味しない。ベータ帯ではLLM群の方が結合が多い比較もある。(4) 引用課題: 検索群には低下が
+    なく、委任の量に応じた「認知的負債」という解釈と合わない。1文の暗唱が学習を表すかも疑問。
+    (5) 差は学習能力より注意の違いを反映している可能性。
+  verification: fulltext
 
 - id: sun2026edpsychrev
   title: "Effects of Generative AI Tools On Students' Critical Thinking: A Three-Level Meta-Analysis"
@@ -551,26 +598,29 @@
   title: "Faster Completion, Less Learning: Generative AI Reduced Study Time on Math Problems and the Knowledge They Build"
   authors: ["Rismanchian, S.", "Uzun, H.", "Matayoshi, J.", "Cosyn, E.", "Kurd-Misto, E."]
   year: 2026
-  venue: arXiv preprint (2605.21629)
+  venue: arXiv preprint (2605.21629v3)
   url: https://arxiv.org/abs/2605.21629
   peer_reviewed: false
   design: longitudinal
   n: 3200000
-  population: 学習システムALEKSの利用者（小5〜大学、10年分のパネル）
-  ai_type: Generative AI (ChatGPT以後の自然実験)
+  population: McGraw Hill の学習システム ALEKS の利用者（小5〜大学、10年分）と配置テスト ALEKS PPL の受験者
+  ai_type: Generative AI（ChatGPT公開を境にした準実験）
   domains: [mathematics, learning, skill_acquisition]
   context: education
   outcomes: [during_ai, without_ai, process]
   direction: negative
   findings: >
-    320万件の学習記録と1220万件の配置テストの反応時間を使い、AIで解きやすい文章題と
-    AIで解きにくいインタラクティブなグラフ問題を比較。ChatGPT公開後、AIで解きやすい問題に
-    かける時間が大学生で四半期ごとに2.8%減り、11四半期で26.9%減少（高校生31.3%、中学生9.0%、
-    小5は変化なし）。大学生の時間差は監督下では消えるため、効率化では説明できない。
-    無作為に出題される監督下の保持問題で正答オッズが累積25%低下し、監督なしの評価では逆に上昇。
-  limitations: 単一の学習プラットフォーム。査読前・未追試。AI使用を直接観測していない。
-  verification: abstract
-  notes: n は学習記録の件数。
+    320万件の学習記録と1220万件の配置テストの反応時間を使い、AIで解きやすい文章題とAIで解きにくい
+    インタラクティブなグラフ問題を比較する準実験。ChatGPT公開後、AIで解きやすい問題にかける時間が
+    大学生で四半期ごとに2.8%減り、11四半期で26.9%減少（高校生31.3%、中学生9.0%、小5は変化なし）。
+    大学生の差は監督下では消えるため、効率化では説明しにくい。無作為に出題される監督下の保持問題では
+    正答オッズが累積25%低下し、監督なしでは逆に上昇した。著者は「認知的降伏」の集団レベルの指標と解釈。
+  limitations: >
+    AI使用を直接観測していない。学習時間の分析と保持の分析は別の母集団・データで、個人レベルの因果の連鎖は
+    示せない。配置テストの成績は事前の学習や受験慣れも反映する。査読前。著者は利害関係のある企業
+    （McGraw Hill）の所属を含む。
+  verification: fulltext
+  notes: 本文（arXiv v3, 2026-07-13）の要旨・考察・限界を確認。考察の「電卓は保持の低下を伴わなかった」はデータの裏付けを示していない主張。
 
 # ---------------------------------------------------------------- 理論・発達・その他
 

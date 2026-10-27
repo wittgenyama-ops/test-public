@@ -7,8 +7,8 @@
 - [`critical_thinking.md`](critical_thinking.md): 批判的思考との関係で何がいえるか
 - [`calculator_vs_ai.md`](calculator_vs_ai.md): 電卓などの従来の外部機器とAIの違い
 
-> 注意: 主要7文献は `verification: detailed`（本文未読、複数の独立ソースで照合）、その他は `abstract`。
-> 本文を読むまでは、数値と著者名を原典で確認してから論文に使うこと。
+> 注意: 主要7文献と `lee2025chi`, `rismanchian2026aleks`, `stankovic2026comment` は本文確認済み（`verification: fulltext`、2026-10-27）。
+> その他は `abstract`。本文確認で変わった点は `critical_thinking.md` §7 にまとめた。
 
 ## 1. 中心的な整理軸: 「パフォーマンス」と「能力」の乖離
 
@@ -19,10 +19,10 @@
 | `bastani2025pnas` | 練習成績 +48%（GPT Base） | 試験成績 −17%（非利用群比） |
 | `fan2025bjet` | エッセイ得点が最も向上 | 知識獲得・転移は差なし |
 | `shen2026coding` | 課題完了（時間短縮は有意でない） | 理解度テストが低い |
-| `stadler2024chb` | 認知負荷が低い | 推論・論証の質が低い |
-| `melumad2025pnasnexus` | 学習が「楽」 | 知識が浅く、助言の質が低い |
+| `stadler2024chb` | 認知負荷が低い | 画面を見ずに書いた根拠が乏しい |
+| `melumad2025pnasnexus` | 探索が短い | 学びが少ないと自己報告、助言が短く似通う（客観テストなし） |
 | `kosmyna2025brain` | エッセイは完成 | 自作文の想起・所有感が低い |
-| `fernandes2026chb` | 推論成績 +3点 | 自己評価が +4点過大（メタ認知の乖離） |
+| `fernandes2026chb` | 推論成績 +3.6点 | 自己評価の正確さは改善せず（AIなしと同程度に約4点過大） |
 
 → 肯定的なメタ分析（`sun2026edpsychrev`, g≈0.54）の多くは**介入中の成績**を測っており、上記の否定的知見と矛盾しているわけではない可能性がある。**何を測ったか（outcome の時点と条件）でコード化し直す**ことが本研究の分析上の主な貢献になりうる。
 
@@ -30,8 +30,8 @@
 
 1. **認知的オフローディング → 練習量の減少**（`risko2016tics`, `gerlich2025societies`）
    望ましい困難（desirable difficulties）を回避することで、記憶の定着とスキル形成が起きない。
-2. **メタ認知の較正の失敗**（`fernandes2026chb`, `fan2025bjet`, `lee2025chi`）
-   AIへの信頼が高いほど検証が減り、自己評価が過大になる。オフローディングの判断自体がメタ認知に依存するため、悪循環が起こりうる。
+2. **メタ認知の較正の失敗**（`bastani2025pnas`, `fernandes2026chb`, `fan2025bjet`, `lee2025chi`）
+   「このタスクはAIがうまくやれる」という確信が高いほど検証が減る。学びの減少に気づかず、成績が上がっても自己評価の正確さは改善しない。オフローディングの判断自体がメタ認知に依存するため、悪循環が起こりうる（ただし過大評価がAIで悪化するという証拠は弱い）。
 3. **自動化バイアス・専門技能の劣化**（`dratsch2023radiology`, `budzyn2025lancetgh`）
    専門家でも誤った提案に引きずられ、継続的な曝露で AI なしの技能が下がる可能性。
 4. **合成済み出力による探索の省略**（`melumad2025pnasnexus`, `stadler2024chb`）
@@ -81,7 +81,7 @@ GPS（`dahmani2020scirep`）や検索エンジン（`sparrow2011science`）の�
 - [x] 主要7文献の詳細照合と読書ノートの作成（`notes/`）。**本文の確認は未了**（ネットワーク制限。README参照）
 - [x] アウトカムを「使用中／AIなし／自己評価など」でコード化する列（`outcomes`）を追加
 - [x] `kosmyna2025brain` への方法論的批判を登録（`stankovic2026comment`）
-- [ ] 主要7文献の本文を読み、`verification: fulltext` に更新（特に Bastani の訂正通知の内容）
+- [x] 主要7文献の本文を読み、`verification: fulltext` に更新（Bastani の訂正は所属の誤記のみ）
 - [ ] `sun2026edpsychrev` の収録研究を測定時点で再コーディング
 - [ ] 電卓研究の本文確認と追加文献（`calculator_vs_ai.md` §7）
 - [ ] 日本語文献（CiNii, J-STAGE）の検索
