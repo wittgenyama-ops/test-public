@@ -740,3 +740,122 @@
   notes: >
     注25によれば rismanchian2026aleks は著者のテンプルトン財団プロジェクト（#63365）から生まれた研究であり、
     両者を独立した裏づけとして扱わないこと。整理は notes/pritchard2026.md。
+
+# ---------------------------------------------------------------- Pritchard の主張に関わる実験（2026-10-28 追加）
+
+- id: liu2026persistence
+  title: "AI Assistance Reduces Persistence and Hurts Independent Performance"
+  authors: ["Liu, G.", "Christian, B.", "Dumbalska, T.", "Bakker, M. A.", "Dubey, R."]
+  year: 2026
+  venue: COLM 2026 (arXiv 2604.04721v6)
+  url: https://arxiv.org/abs/2604.04721
+  peer_reviewed: true
+  design: rct
+  n: 1222
+  population: Prolific の米国成人（3実験）
+  ai_type: LLM (GPT-5。解答を事前に与えた補助)
+  domains: [persistence, intellectual_character, skill_acquisition, metacognition]
+  context: problem_solving
+  outcomes: [during_ai, without_ai, process, self_report]
+  direction: negative
+  findings: >
+    約13分の課題で、AI群は練習中にAIを使い、予告なくAIを外された後にAIなしで3問解く。スキップ（罰なし）を
+    粘り強さの逆の指標とする。分数（実験1, n=305）: AIなしの正答率 0.57 対 0.74（d=−0.45）、スキップ率
+    0.20 対 0.11（d=0.27）。分数の追試（実験2, n=585）: 正答率 d=−0.20、スキップ率の差は有意でない（d=0.10）。
+    SAT の読解（実験3, n=168）: 正答率 0.76 対 0.89（d=−0.42）、スキップ率 0.08 対 0.01（d=0.42）。
+    実験2で、主に答えを直接得た人（61%）に悪影響が集中し、ヒントを求めた人では小さい。
+  limitations: >
+    曝露は10〜15分だけ。実験1は除外基準による交絡の可能性。実験2の粘り強さの全体効果は有意でない。
+  verification: fulltext
+  notes: 知的な粘り強さを行動で測った、Pritchard の主張に最も近い RCT。analysis/pritchard_vs_evidence.md 参照。
+
+- id: kumar2025chi
+  title: "Human Creativity in the Age of LLMs: Randomized Experiments on Divergent and Convergent Thinking"
+  authors: ["Kumar, H.", "Vincentius, J.", "Jordan, E.", "Anderson, A."]
+  year: 2025
+  venue: Proceedings of CHI 2025
+  doi: 10.1145/3706598.3714198
+  peer_reviewed: true
+  design: rct
+  n: 1100
+  population: オンライン参加者（事前登録の並行2実験）
+  ai_type: LLM（答えを出す標準型と、方略を示すコーチ型）
+  domains: [creativity, homogenization, intellectual_character]
+  context: problem_solving
+  outcomes: [during_ai, without_ai]
+  direction: negative
+  findings: >
+    発散的思考（AUT）と収束的思考（RAT）で、標準型LLM・コーチ型LLM・対照を比較し、最後にAIなしの段階で測定。
+    AIありでは成績が上がるが、AIなしの段階では利益が残らず、発散的思考では独創性と多様性が下がる場合があった。
+    収束的思考では、コーチ型LLMの指導を受けた人がAIなしの段階で対照群より成績が悪かった。
+    LLMの方略を受け取った人は、AIを外した後もアイデアが似通ったまま。
+  limitations: 短期の実験室課題。自動採点の指標。コーチ型の指導の設計に依存。
+  verification: fulltext
+  notes: 本文のうち、結果の要約（序論）と考察の該当箇所を確認。効果量は本文の表で要確認。
+
+- id: liuq2024creativity
+  title: "When ChatGPT is gone: Creativity reverts and homogeneity persists"
+  authors: ["Liu, Q.", "Zhou, Y.", "Huang, J.", "Li, G."]
+  year: 2024
+  venue: arXiv preprint (2401.06816)
+  url: https://arxiv.org/abs/2401.06816
+  peer_reviewed: false
+  design: rct
+  n: 61
+  population: 中国の大学生（31専攻）
+  ai_type: LLM (ChatGPT 4.0)
+  domains: [creativity, homogenization]
+  context: problem_solving
+  outcomes: [during_ai, without_ai]
+  direction: mixed
+  findings: >
+    事前登録（osf.io/hea8r）の7日間の実験と30日後の追跡。1日目と7日目は全員AIなし、2〜6日目はChatGPT群だけ使用。
+    使用中は新規性・有用性・柔軟性が高い。7日目と30日目（AIなし）では対照群と差がなく、元の水準に戻った
+    （下回ってはいない）。最も創造的なアイデアを選ぶ力は高まらなかった。内容の均質化は使用中に強まり、
+    AIを外した後も残った。
+  limitations: 小標本。追跡は1回。査読済みの続報（Technology in Society, 2026）は未読。
+  verification: fulltext
+
+- id: maier2026metacog
+  title: "Designing Against Deskilling: Metacognitive Feedback Reduces Cognitive Offloading to LLM Assistants"
+  authors: ["Maier, S.", "Schwabe, K.", "Schneider, M.", "Feuerriegel, S."]
+  year: 2026
+  venue: arXiv preprint (2609.20143)
+  url: https://arxiv.org/abs/2609.20143
+  peer_reviewed: false
+  design: rct
+  n: 704
+  population: オンライン参加者（事前登録、2×2＋AIなし対照）
+  ai_type: LLM（求めたときだけ解答を出す）
+  domains: [metacognition, deskilling, skill_acquisition]
+  context: education
+  outcomes: [during_ai, without_ai, process]
+  direction: positive
+  findings: >
+    分数の練習。オフローディングが自分にとって何を意味するかを示すメタ認知的フィードバックで、答えの丸投げが減り
+    （OR=0.47）、AIなしのテスト成績が上がった（OR=1.51）。努力への報酬はどちらにも効果なし。
+  limitations: 短期・単一課題。査読前。
+  verification: abstract
+  notes: Pritchard の「理論を教える」提案に最も近い実証。
+
+- id: choudhuri2026habits
+  title: "Thinking Less, Trusting More: GenAI's Impacts on Students' Cognitive Habits"
+  authors: ["Choudhuri, R.", "Sanchez, C. A.", "Burnett, M.", "Sarma, A."]
+  year: 2026
+  venue: arXiv preprint (2601.22430v2)
+  url: https://arxiv.org/abs/2601.22430
+  peer_reviewed: false
+  design: survey
+  n: 299
+  population: 北米5大学の STEM 学生
+  ai_type: Generative AI (general)
+  domains: [intellectual_character, critical_thinking, reflection]
+  context: education
+  outcomes: [self_report]
+  direction: negative
+  findings: >
+    PLS-SEM。AIを信頼して日常的に使う学生ほど、省察・理解への欲求・批判的思考という認知的関与の習慣が低い。
+    技術への関心・リスク許容・コンピュータへの自己効力感が高い学生ほど影響が強く、AIや学業の経験は防御にならない。
+  limitations: 横断調査で因果は不明。自己報告。
+  verification: abstract
+  notes: ScienceDirect に掲載版あり（未確認）。
