@@ -620,7 +620,9 @@
     示せない。配置テストの成績は事前の学習や受験慣れも反映する。査読前。著者は利害関係のある企業
     （McGraw Hill）の所属を含む。
   verification: fulltext
-  notes: 本文（arXiv v3, 2026-07-13）の要旨・考察・限界を確認。考察の「電卓は保持の低下を伴わなかった」はデータの裏付けを示していない主張。
+  notes: >
+    本文（arXiv v3, 2026-07-13）の要旨・考察・限界を確認。考察の「電卓は保持の低下を伴わなかった」はデータの裏付けを示していない主張。
+    pritchard2026spe 注25によれば、Pritchard のテンプルトン財団プロジェクトから生まれた研究で、考察で用いる Pritchard の区別と独立ではない。
 
 # ---------------------------------------------------------------- 理論・発達・その他
 
@@ -707,5 +709,34 @@
     教育への含意の詳細は別稿（Pritchard 2026, Studies in Philosophy and Education）に委ねている。
   verification: fulltext
   notes: >
-    同じ著者の短い寄稿「Navigating the AI Revolution」（IAU Horizons、書誌情報不明のため未登録）は、
-    同じ議論を高等教育に当てはめ、AIなしの「隔離された」授業期間を提案する。両者の整理は notes/pritchard2026.md。
+    教育への応用は pritchard2026spe。同じ著者の短い寄稿「Navigating the AI Revolution」（IAU Horizons、
+    書誌情報不明のため未登録）はその要約版。3本の整理は notes/pritchard2026.md。
+
+- id: pritchard2026spe
+  title: "Educating for Intellectual Character and the AI Revolution in Education"
+  authors: ["Pritchard, D."]
+  year: 2026
+  venue: Studies in Philosophy and Education
+  doi: 10.1007/s11217-026-10094-z
+  peer_reviewed: true
+  design: review
+  ai_type: 生成AI（教育での利用。理論）
+  domains: [intellectual_character, executive_cognition, critical_thinking, education_policy]
+  context: education
+  outcomes: []
+  direction: theory
+  findings: >
+    教育の認識的な目的が知識と技能の習得だけなら、AIは電卓やワープロと程度が違うだけになる。
+    しかし目的は知的性格（領域を問わず働く実行的認知技能）の涵養であり、従来の技術は領域固有の技能を
+    変えるだけなのに対し、AIはエッセイ・設計・データ分析などの課題を学生の代わりに仕上げ、成果物は残しても
+    知的性格を育てる過程（調べる、考えを構成する、推敲する、他者と議論する）をなくす。違いは種類であり、
+    実践をAIに合わせて調整するのでは対応できない。全面禁止も誤りとし、(1) AIから切り離した
+    「隔離された（cloistered）」学習期間と、(2) 知的性格を育てる教育の理論を学生に明示的に教えることを提案。
+    両者の効果を確かめる実証研究の計画（4つの問い）も示す。
+  limitations: >
+    概念的な議論。実証的根拠は kosmyna2025brain と shaw2026surrender の引用のみ。
+    実行的技能は領域固有の学習を通じて身につくという反論（Willingham 2008）を著者自身が注で認めている。
+  verification: fulltext
+  notes: >
+    注25によれば rismanchian2026aleks は著者のテンプルトン財団プロジェクト（#63365）から生まれた研究であり、
+    両者を独立した裏づけとして扱わないこと。整理は notes/pritchard2026.md。
