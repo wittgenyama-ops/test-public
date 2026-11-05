@@ -1,5 +1,5 @@
 // ふわふわさんの大冒険 — 横スクロール飛行ゲーム
-// 主人公画像: このフォルダに fuwafuwa.png（透過PNG推奨）を置くと、その画像が主人公として使われます。
+// 主人公画像: fuwafuwa.png（元の絵から切り抜いたもの）。差し替えるときは同名の透過PNGを置いてください。
 'use strict';
 
 const cv = document.getElementById('c');
@@ -615,7 +615,9 @@ function drawHero(x, y, scale) {
   ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
   const bob = Math.sin(timer / 8) * 2;
   if (heroImgOk) {
-    const h = 80, w = h * heroImg.width / heroImg.height;
+    const h = 100, w = h * heroImg.width / heroImg.height;
+    const tilt = (state === 'title' || !player) ? 0 : Math.max(-0.25, Math.min(0.25, player.vy * 0.04));
+    ctx.rotate(tilt);
     ctx.drawImage(heroImg, -w / 2, -h / 2 + bob, w, h);
     ctx.restore(); return;
   }
