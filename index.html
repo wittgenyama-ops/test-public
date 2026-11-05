@@ -49,6 +49,9 @@
   #bar{margin-top:8px;height:8px;border-radius:4px;background:rgba(255,255,255,.3);overflow:hidden}
   #bar i{display:block;height:100%;width:30%;background:linear-gradient(90deg,#7ee0ff,#ffe066,#ff5a4a);border-radius:4px}
   #warn{position:absolute;left:50%;top:22%;transform:translateX(-50%);font-weight:800;font-size:18px;text-shadow:0 2px 8px rgba(0,0,0,.6);opacity:0;transition:opacity .4s}
+  #toast{position:absolute;left:50%;top:14%;transform:translateX(-50%);padding:8px 18px;border-radius:999px;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-weight:800;font-size:18px;opacity:0;transition:opacity .35s;white-space:nowrap}
+  #camhint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);font-size:13px;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.6);opacity:.85;white-space:nowrap}
+  @media (pointer:coarse){#camhint{bottom:auto;top:calc(14% + 46px)}}
   #topbtns{position:absolute;right:16px;top:180px;display:flex;flex-direction:column;gap:8px;pointer-events:auto}
   .ibtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--glass-b);background:var(--glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font-size:20px;cursor:pointer}
   /* touch pad */
@@ -102,6 +105,8 @@
     <div class="card keys">
       <kbd>←</kbd><kbd>→</kbd> ひだり・みぎ　<kbd>↑</kbd><kbd>↓</kbd> うえ・した<br>
       <kbd>Space</kbd>/<kbd>Shift</kbd> スピードアップ　<kbd>Z</kbd>/<kbd>Ctrl</kbd> スピードダウン　<kbd>Esc</kbd> もどる<br>
+      <kbd>C</kbd>/<kbd>1</kbd>〜<kbd>6</kbd> カメラ（うしろ・ななめまえ・まえ・よこ・うえ・ぐるぐる）　<kbd>H</kbd> ホバリング<br>
+      ドラッグで らいこーんを ぐるっと みられるよ（ホイール／ピンチで ズーム、<kbd>R</kbd> でもとにもどす）<br>
       スマホは がめんの ボタンで そうさ できます
     </div>
   </div>
@@ -113,9 +118,9 @@
 <div id="hud" class="hidden">
   <div id="place"><div class="stage" id="stageName"></div><div class="lm" id="lm"></div><div class="lmd" id="lmd"></div></div>
   <canvas id="mini" width="300" height="300"></canvas>
-  <div id="topbtns"><button class="ibtn" id="btnHome" title="タイトルへ">⌂</button><button class="ibtn" id="btnSound" title="おと">🔊</button></div>
+  <div id="topbtns"><button class="ibtn" id="btnHome" title="タイトルへ">⌂</button><button class="ibtn" id="btnCam" title="カメラをきりかえ (C)">🎥</button><button class="ibtn" id="btnHover" title="ホバリング (H)">⏸</button><button class="ibtn" id="btnSound" title="おと">🔊</button></div>
   <div id="gauge" class="card"><div class="spd"><span id="spd">0</span><small>km/h</small></div><div class="alt">たかさ <span id="alt">0</span> m</div><div id="bar"><i></i></div></div>
-  <div id="warn">まちに もどるよ！</div>
+  <div id="warn">まちに もどるよ！</div><div id="toast"></div><div id="camhint">ドラッグで まわして みられるよ・ホイール／ピンチで ズーム</div>
   <div id="touch">
     <div class="pad" id="padR"><button class="tb sp" data-k="fast">はやく ⏩</button><button class="tb sp" data-k="slow">ゆっくり ⏪</button></div>
     <div class="pad" id="padL">
@@ -1052,7 +1057,12 @@ setupTitleClouds();
 // =====================================================================
 const keys={left:0,right:0,up:0,down:0,fast:0,slow:0};
 const KM={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',Space:'fast',ShiftLeft:'fast',ShiftRight:'fast',KeyZ:'slow',ControlLeft:'slow',ControlRight:'slow',KeyX:'slow'};
-addEventListener('keydown',e=>{if(KM[e.code]){keys[KM[e.code]]=1;e.preventDefault();}if(e.code==='Escape'&&mode==='play')toTitle();});
+addEventListener('keydown',e=>{if(KM[e.code]){keys[KM[e.code]]=1;e.preventDefault();if(KM[e.code]==='fast'&&player.hover)setHover(false);}if(e.code==='Escape'&&mode==='play')toTitle();
+  if(mode!=='play'||e.repeat)return;
+  if(e.code==='KeyC')setCam(camMode+1);
+  const dm=/^Digit([1-6])$/.exec(e.code);if(dm)setCam(+dm[1]-1);
+  if(e.code==='KeyH')setHover(!player.hover);
+  if(e.code==='KeyR'){view.dAz=0;view.dEl=0;view.zoom=1;showToast('カメラを もとに もどしたよ');}});
 addEventListener('keyup',e=>{if(KM[e.code]){keys[KM[e.code]]=0;e.preventDefault();}});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=0;});
 document.querySelectorAll('.tb').forEach(b=>{const k=b.dataset.k;
@@ -1072,7 +1082,7 @@ document.getElementById('btnSound').onclick=()=>{soundOn=!soundOn;document.getEl
 //  game state
 // =====================================================================
 let mode='title',world=null;
-const player={pos:new THREE.Vector3(),yaw:0,vy:0,speed:45,target:45,turn:0,climb:0,roll:0,pitch:0};
+const player={pos:new THREE.Vector3(),yaw:0,vy:0,speed:45,target:45,turn:0,climb:0,roll:0,pitch:0,hover:false};
 const MINS=12,MAXS=150,CRUISE=45;
 const camPos=new THREE.Vector3(),camLook=new THREE.Vector3();
 const hud=document.getElementById('hud'),titleEl=document.getElementById('title'),loadEl=document.getElementById('loading');
@@ -1095,7 +1105,7 @@ function startStage(key){
     world.scene.add(raikorn.root);raikorn.root.traverse(o=>{if(o.isMesh)o.castShadow=true;});
     streaks=makeStreaks(world.scene);
     const s=world.def.start;player.pos.set(s.x,s.y,s.z);player.yaw=s.yaw;player.vy=0;player.speed=CRUISE;player.target=CRUISE;player.turn=player.climb=player.roll=player.pitch=0;
-    const f=new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));camPos.copy(player.pos).addScaledVector(f,-20).add(new THREE.Vector3(0,6,0));camLook.copy(player.pos);
+    const f=new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));camPos.copy(player.pos).addScaledVector(f,-20).add(new THREE.Vector3(0,6,0));camLook.copy(player.pos);view.off.copy(camPos).sub(player.pos);view.az=0;view.el=.36;view.dAz=0;view.dEl=0;view.zoom=1;camMode=0;player.hover=false;document.getElementById('btnHover').textContent='⏸';document.getElementById('camhint').style.opacity=.85;
     renderer.toneMappingExposure=world.def.sun.exp;
     document.getElementById('stageName').textContent=world.def.name;
     loadEl.classList.add('hidden');hud.classList.remove('hidden');mode='play';lastLm=null;
@@ -1103,14 +1113,44 @@ function startStage(key){
 }
 function toTitle(){mode='title';hud.classList.add('hidden');titleEl.classList.remove('hidden');titleScene.add(raikorn.root);raikorn.root.position.set(0,0,0);raikorn.root.rotation.set(0,0,0);renderer.toneMappingExposure=.7;if(windGain)windGain.gain.value=0;}
 
+// ---------- camera modes / free look ----------
+const CAMS=[
+  {n:'うしろ',az:0,el:.36,d:1,look:22},
+  {n:'ななめまえ',az:2.35,el:.22,d:.85,look:0},
+  {n:'まえ',az:Math.PI,el:.1,d:.8,look:0},
+  {n:'よこ',az:Math.PI/2,el:.06,d:.85,look:0},
+  {n:'うえ',az:0,el:1.32,d:1.15,look:0},
+  {n:'ぐるぐる',az:0,el:.2,d:.9,look:0,spin:true},
+];
+let camMode=0;
+const view={az:0,el:.36,d:1,look:22,dAz:0,dEl:0,zoom:1,spin:0,off:new THREE.Vector3()};
+const toastEl=document.getElementById('toast');let toastT=0;
+function showToast(msg){toastEl.textContent=msg;toastEl.style.opacity=1;clearTimeout(toastT);toastT=setTimeout(()=>toastEl.style.opacity=0,1600);}
+function setCam(i){camMode=((i%CAMS.length)+CAMS.length)%CAMS.length;view.dAz=0;view.dEl=0;showToast('🎥 カメラ：'+CAMS[camMode].n);}
+function setHover(on){player.hover=on;document.getElementById('btnHover').textContent=on?'▶':'⏸';showToast(on?'⏸ ホバリング中（その場で ふわふわ）':'▶ しゅっぱつ！');if(!on&&player.target<CRUISE*.6)player.target=CRUISE*.6;}
+document.getElementById('btnCam').onclick=()=>setCam(camMode+1);
+document.getElementById('btnHover').onclick=()=>setHover(!player.hover);
+// drag to orbit, wheel / pinch to zoom (works on the title screen too)
+const ptrs=new Map();let pinch0=0,zoom0=1;const titleView={dAz:0,dEl:0,last:-99};
+canvas.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});try{canvas.setPointerCapture(e.pointerId);}catch(_){}
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);zoom0=view.zoom;}});
+canvas.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch0>0)view.zoom=clamp(zoom0*pinch0/d,.45,2.6);return;}
+  if(mode==='play'){view.dAz-=dx*.0075;view.dEl=clamp(view.dEl+dy*.005,-1.2,1.4);document.getElementById('camhint').style.opacity=0;}
+  else if(mode==='title'){titleView.dAz+=dx*.01;titleView.dEl=clamp(titleView.dEl+dy*.004,-.5,.6);titleView.last=clock.elapsedTime;}});
+const endPtr=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch0=0;};
+canvas.addEventListener('pointerup',endPtr);canvas.addEventListener('pointercancel',endPtr);
+canvas.addEventListener('wheel',e=>{e.preventDefault();if(mode==='play')view.zoom=clamp(view.zoom*Math.exp(e.deltaY*.0012),.45,2.6);},{passive:false});
+const wrapA=a=>((a+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;
+
 let lastLm=null;
 function updatePlay(dt,t){
   const P=player;
   const turnIn=keys.right-keys.left,climbIn=keys.up-keys.down,acc=keys.fast-keys.slow;
   P.turn=damp(P.turn,turnIn,4,dt);P.climb=damp(P.climb,climbIn,3,dt);
-  if(acc)P.target=clamp(P.target+acc*55*dt,MINS,MAXS);
-  P.speed=damp(P.speed,P.target,acc>0?1.6:1.2,dt);
-  const s01=(P.speed-MINS)/(MAXS-MINS);
+  if(acc&&!P.hover)P.target=clamp(P.target+acc*55*dt,MINS,MAXS);
+  P.speed=damp(P.speed,P.hover?0:P.target,P.hover?1.8:(acc>0?1.6:1.2),dt);
+  const s01=clamp((P.speed-MINS)/(MAXS-MINS),0,1);
   P.yaw-=P.turn*lerp(1.05,.6,s01)*dt;
   const vyT=P.climb*(10+P.speed*.32);P.vy=damp(P.vy,vyT,2.5,dt);
   const f=new THREE.Vector3(-Math.sin(P.yaw),0,-Math.cos(P.yaw));
@@ -1124,19 +1164,27 @@ function updatePlay(dt,t){
   const r=Math.hypot(P.pos.x,P.pos.z);let warn=0;
   if(r>5200){warn=1;const want=Math.atan2(P.pos.x,P.pos.z);let dy=((want-P.yaw+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;P.yaw+=dy*Math.min(1,dt*.9*(r-5200)/400+dt*.4);}
   elWarn.style.opacity=warn;
-  P.roll=damp(P.roll,-P.turn*.75,4,dt);P.pitch=damp(P.pitch,Math.atan2(P.vy,P.speed)*.9,4,dt);
+  P.roll=damp(P.roll,-P.turn*.75,4,dt);P.pitch=damp(P.pitch,Math.atan2(P.vy,Math.max(P.speed,12))*.9,4,dt);
   const R=raikorn.root;R.position.copy(P.pos);R.rotation.set(P.pitch,P.yaw,P.roll,'YXZ');
-  raikorn.update(dt,t,{speed01:s01,climb:P.climb,turn:P.turn});
-  // camera
-  const dist=17+s01*5,hgt=6.5-P.climb*2;
-  const want=P.pos.clone().addScaledVector(f,-dist).add(new THREE.Vector3(0,hgt,0));
-  const camMin=world.heightAt(want.x,want.z)+3;if(want.y<camMin)want.y=camMin;
-  camPos.x=damp(camPos.x,want.x,5,dt);camPos.z=damp(camPos.z,want.z,5,dt);camPos.y=damp(camPos.y,want.y,3.5,dt);
-  camLook.lerp(P.pos.clone().addScaledVector(f,22).add(new THREE.Vector3(0,1.5,0)),1-Math.exp(-8*dt));
+  const hov=1-clamp(P.speed/MINS,0,1);raikorn.update(dt,t,{speed01:s01,climb:Math.max(P.climb,hov*.6),turn:P.turn});
+  // camera (orbit rig in the player's heading frame)
+  const C=CAMS[camMode];
+  if(C.spin)view.spin+=dt*.45;
+  const tAz=C.az+(C.spin?view.spin:0)+view.dAz,tEl=clamp(C.el+view.dEl-(camMode===0?P.climb*.12:0),-.35,1.5);
+  view.az+=wrapA(tAz-view.az)*(1-Math.exp(-4*dt));view.el=damp(view.el,tEl,4,dt);
+  view.d=damp(view.d,C.d*view.zoom,4,dt);view.look=damp(view.look,C.look,3,dt);
+  const dist=(17+s01*5)*view.d;
+  const rt=new THREE.Vector3(Math.cos(P.yaw),0,-Math.sin(P.yaw));
+  const dirH=f.clone().multiplyScalar(-Math.cos(view.az)).addScaledVector(rt,Math.sin(view.az));
+  const wantOff=dirH.multiplyScalar(dist*Math.cos(view.el));wantOff.y=dist*Math.sin(view.el)+1;
+  view.off.lerp(wantOff,1-Math.exp(-(camMode===0&&!view.dAz?5:7)*dt));
+  camPos.copy(P.pos).add(view.off);
+  const camMin=world.heightAt(camPos.x,camPos.z)+3;if(camPos.y<camMin)camPos.y=camMin;
+  camLook.copy(P.pos).addScaledVector(f,view.look).add(new THREE.Vector3(0,1.5,0));
   camera.position.copy(camPos);
   const shake=Math.max(0,s01-.55)*.25;camera.position.x+=(Math.random()-.5)*shake;camera.position.y+=(Math.random()-.5)*shake;
-  camera.lookAt(camLook);camera.rotateZ(P.roll*.22);
-  const fov=58+s01*30;if(Math.abs(camera.fov-fov)>.05){camera.fov=damp(camera.fov,fov,3,dt);camera.updateProjectionMatrix();}
+  camera.lookAt(camLook);if(camMode===0&&Math.abs(view.dAz)<.2)camera.rotateZ(P.roll*.22);
+  const fov=(camMode===0?58+s01*30:50+s01*16);if(Math.abs(camera.fov-fov)>.05){camera.fov=damp(camera.fov,fov,3,dt);camera.updateProjectionMatrix();}
   // wind streaks
   const st=streaks;st.m.opacity=clamp((s01-.2)*.7,0,.55);const vel=f.clone().multiplyScalar(P.speed).add(new THREE.Vector3(0,P.vy,0));const L=.05+s01*.12;
   for(let i=0;i<st.P.length;i++){const p=st.P[i];const rel=p.clone().sub(P.pos);
@@ -1173,7 +1221,7 @@ function drawFx(s01){
 
 // title animation
 function updateTitle(dt,t){
-  const R=raikorn.root;R.position.set(0,0,0);R.rotation.set(-.08,Math.PI+Math.sin(t*.4)*.9,0);
+  const R=raikorn.root;R.position.set(0,0,0);const k=clamp((t-titleView.last-3)/3,0,1);if(k>0){titleView.dAz=wrapA(titleView.dAz)*Math.exp(-dt*.6*k);titleView.dEl*=Math.exp(-dt*.6*k);}R.rotation.set(-.08+titleView.dEl,Math.PI+Math.sin(t*.4)*.9*k+titleView.dAz,0);
   raikorn.update(dt,t,{speed01:.05,climb:.2,turn:0});
   const narrow=innerWidth<720;titleCam.position.set(narrow?0:-6,narrow?4:3,narrow?30:24);titleCam.lookAt(narrow?0:-7,narrow?-2:0.6,0);
   for(const c of titleClouds){c.position.x+=dt*2;if(c.position.x>70)c.position.x=-70;}
@@ -1195,7 +1243,7 @@ function loop(){
   requestAnimationFrame(loop);
 }
 loop();
-window.__game={pause(v){paused=v;},step(n,dt=1/30){for(let i=0;i<n;i++){simT+=dt;if(mode==='play'&&world)updatePlay(dt,simT);}frame(0.0001,simT);},startStage,player,keys,get world(){return world;},get mode(){return mode;}};
+window.__game={pause(v){paused=v;},setCam,setHover,step(n,dt=1/30){for(let i=0;i<n;i++){simT+=dt;if(mode==='play'&&world)updatePlay(dt,simT);}frame(0.0001,simT);},startStage,player,keys,get world(){return world;},get mode(){return mode;}};
 </script>
 </body>
 </html>
