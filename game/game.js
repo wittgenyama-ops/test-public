@@ -1,4 +1,4 @@
-// ふわふわさんの だいぼうけん — ふわふわ うきながら いろんな あいてに であう よこすくろーる げーむ
+// ふわふわさんの だいぼうけん — ながれてくる たべものを あつめて、まっている あいてに わたして なかよく なる げーむ
 // しゅじんこう がぞう: fuwafuwa.png（もとの え から きりぬいた もの）
 'use strict';
 
@@ -11,15 +11,13 @@ let heroImgOk = false;
 heroImg.onload = () => { heroImgOk = true; };
 heroImg.src = 'fuwafuwa.png';
 
-// ---------- たべもの と ぶき ----------
+// ---------- たべもの ----------
 const FOODS = {
   bone: '🦴', fish: '🐟', carrot: '🥕', cheese: '🧀', corn: '🌽', dango: '🍡', onigiri: '🍙', honey: '🍯',
   banana: '🍌', acorn: '🌰', egg: '🥚', strawberry: '🍓', lettuce: '🥬', meat: '🍖', melon: '🍉', flower: '🌸',
   shrimp: '🦐', shell: '🐚', candy: '🍬',
   cookie: '🍪', lollipop: '🍭', donut: '🍩', battery: '🔋', apple: '🍎', shaved: '🍧', cake: '🍰',
 };
-// ぶき（なげると あいてが ぽーんと とんでいく）
-const WEAPONS = ['⭐', '🫧', '🎾', '💫'];
 
 // move: float（ふわふわ）/ wave（なみ）/ hop（ぴょん）/ zigzag / slow（のんびり）
 const STAGES = [
@@ -182,11 +180,12 @@ const SFX = {
 };
 
 // ---------- そうさ ----------
+// うごく：やじるし / WASD / がめんを なぞる。 はじめる・つぎへ：どの きー でも たっぷ でも
 const keys = {}, pressed = {};
-const THROW_KEYS = ['Enter', 'NumpadEnter'];   // えんたー きー が 「なげる」
+let anyKey = false;
 addEventListener('keydown', e => {
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'Enter', 'NumpadEnter'].includes(e.code)) e.preventDefault();
-  if (!keys[e.code]) pressed[e.code] = true;
+  if (!keys[e.code]) { pressed[e.code] = true; anyKey = true; }
   keys[e.code] = true; initAudio();
 });
 addEventListener('keyup', e => { keys[e.code] = false; });
@@ -198,16 +197,17 @@ function canvasPos(e) {
 cv.addEventListener('pointerdown', e => { initAudio(); pressed.Tap = true; touchTarget = canvasPos(e); });
 cv.addEventListener('pointermove', e => { if (touchTarget) touchTarget = canvasPos(e); });
 addEventListener('pointerup', () => { touchTarget = null; });
-const throwBtn = document.getElementById('bThrow');
-if (throwBtn) throwBtn.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); initAudio(); pressed.Throw = true; });
-const throwPressed = () => pressed.Throw || THROW_KEYS.some(k => pressed[k]);
-const anyPressed = () => throwPressed() || pressed.Tap;
+const anyPressed = () => anyKey || pressed.Tap;
 
 // ---------- じょうたい ----------
+const FOOD_SPEED = 2.2;      // たべもの が ながれる はやさ（すこし はやめ）
+const MAX_CREATURES = 3;     // いちどに がめんに いる あいて の かず
+const STAY = 60 * 45;        // あいて が まっていて くれる じかん
+
 let state = 'title'; // title, intro, play, big, book, ending
 let stageIdx = 0, stage = STAGES[0];
 let timer = 0, dist = 0, scroll = 0, spawnT = 0, itemT = 0, bigT = 0;
-let player, creatures = [], thrown = [], items = [], particles = [], popups = [], big = null;
+let player, creatures = [], items = [], particles = [], popups = [], big = null;
 let friends = [];       // なかま（ぎょうれつ）
 let trail = [];         // ふわふわさん の とおった ばしょ
 let met = null;         // めんごと に であった / なかよく なった
@@ -221,50 +221,56 @@ function startGame() {
 }
 function startStage(i) {
   stageIdx = i; stage = STAGES[i]; met = ALL_MET[i];
-  creatures = []; thrown = []; items = []; particles = []; popups = []; big = null;
-  dist = 0; spawnT = 90; itemT = 30; timer = 0;
-  player.x = 180; player.y = H / 2;
-  // はじめから すこし もっている
-  player.inv = [WEAPONS[0], FOODS[stage.creatures[0].fav], FOODS[stage.creatures[1].fav]];
+  creatures = []; items = []; particles = []; popups = []; big = null;
+  dist = 0; spawnT = 60; itemT = 20; timer = 0;
+  player.x = 180; player.y = H / 2; player.vx = player.vy = 0; player.inv = [];
   state = 'intro';
   jingle([72, 76, 79, 84, 0, 79, 84], 'triangle', 0.15);
   setTimeout(() => { if (state === 'intro' || state === 'play') playMusic(stage.music); }, 1300);
 }
 
-const isWeapon = it => WEAPONS.includes(it);
-
 // ---------- でてくる もの ----------
+function freeSpot() {
+  // ほかの あいて と かさならない ばしょ を さがす
+  for (let k = 0; k < 30; k++) {
+    const x = W * 0.42 + Math.random() * (W * 0.5), y = 130 + Math.random() * (H - 230);
+    if (creatures.every(c => (c.hx - x) ** 2 + (c.hy - y) ** 2 > 170 * 170)) return { x, y };
+  }
+  return { x: W * 0.5 + Math.random() * W * 0.4, y: 130 + Math.random() * (H - 230) };
+}
 function spawnCreature() {
   const pool = stage.creatures;
-  // まだ であって いない こ が でやすい
-  const unmet = pool.filter(c => !met.met.has(c.n));
-  const t = (unmet.length && Math.random() < 0.7) ? unmet[Math.floor(Math.random() * unmet.length)] : pool[Math.floor(Math.random() * pool.length)];
-  const y = 120 + Math.random() * (H - 230);
-  creatures.push({ t, x: W + 60, y, baseY: y, age: 0, r: 36, calm: 0, out: null, said: false });
+  const here = creatures.map(c => c.t.n);
+  // まだ なかよく なって いない こ、まだ であって いない こ が でやすい
+  let cand = pool.filter(c => !met.friend.has(c.n) && !here.includes(c.n));
+  const unmet = cand.filter(c => !met.met.has(c.n));
+  if (unmet.length && Math.random() < 0.7) cand = unmet;
+  if (!cand.length) cand = pool.filter(c => !here.includes(c.n));
+  const t = cand[Math.floor(Math.random() * cand.length)];
+  const s = freeSpot();
+  creatures.push({ t, x: W + 70, y: s.y, hx: s.x, hy: s.y, age: 0, r: 38, leaving: false, said: false, ask: 0, ph: Math.random() * 6 });
+}
+function wantedFoods() {
+  const list = creatures.filter(c => !c.leaving).map(c => c.t.fav);
+  if (big && !big.leaving) list.push(big.t.fav, big.t.fav, big.t.fav);
+  return list;
 }
 function spawnItem() {
-  let it;
-  const onScreen = creatures.filter(c => !c.out && c.x < W);
-  if (Math.random() < 0.35) it = WEAPONS[Math.floor(Math.random() * WEAPONS.length)];
-  else if (big && Math.random() < 0.7) it = FOODS[big.t.fav];
-  else if (onScreen.length && Math.random() < 0.75) it = FOODS[onScreen[Math.floor(Math.random() * onScreen.length)].t.fav];
-  else it = FOODS[stage.creatures[Math.floor(Math.random() * stage.creatures.length)].fav];
-  const iy = 100 + Math.random() * (H - 190);
-  items.push({ it, x: W + 30, y: iy, baseY: iy, age: 0 });
+  const want = wantedFoods();
+  let key;
+  if (want.length && Math.random() < 0.75) key = want[Math.floor(Math.random() * want.length)];
+  else key = stage.creatures[Math.floor(Math.random() * stage.creatures.length)].fav;
+  const y = 90 + Math.random() * (H - 170);
+  items.push({ it: FOODS[key], x: W + 30, y, baseY: y, age: 0, sp: FOOD_SPEED * (0.85 + Math.random() * 0.3), ph: Math.random() * 6 });
 }
 function spawnBig() {
-  big = { t: stage.big, x: W + 140, y: H / 2, age: 0, fed: 0, hits: 0, r: 85, enter: true, out: null };
+  const s = { x: W - 200, y: H / 2 };
+  big = { t: stage.big, x: W + 160, y: s.y, hx: s.x, hy: s.y, age: 0, fed: 0, r: 88, leaving: false };
   met.bigMet = true; SFX.big();
   popup(W / 2, 150, `おおきな ${stage.big.n} が やってきた！`, '#fff6a8', 150, 30);
   state = 'big'; bigT = 0;
 }
 
-function burst(x, y, col, n, sp) {
-  for (let i = 0; i < n; i++) {
-    const a = Math.random() * Math.PI * 2, s = (sp || 3) * (0.3 + Math.random());
-    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 30 + Math.random() * 20, col, r: 2 + Math.random() * 4 });
-  }
-}
 function sparkle(x, y, txt, n) {
   for (let i = 0; i < (n || 6); i++) particles.push({ x, y, vx: (Math.random() - 0.5) * 3, vy: -1 - Math.random() * 2, life: 60, txt, r: 18 });
 }
@@ -273,22 +279,7 @@ function addFriend(e, n, isBig) { friends.push({ e, n, x: player.x, y: player.y,
 
 // ---------- こうしん ----------
 const d2 = (a, b) => (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
-
-// つぎに なげる もの を えらぶ：こうぶつ が あう あいて が いれば それ、なければ ひだりはし
-function chooseThrow() {
-  const inv = player.inv;
-  if (!inv.length) return null;
-  const targets = creatures.filter(c => !c.out && !c.dead && c.x > player.x && c.x < W + 20);
-  if (big && big.x < W - 60 && !big.out) targets.push(big);
-  for (let i = 0; i < inv.length; i++) {
-    if (isWeapon(inv[i])) continue;
-    const t = targets.find(c => FOODS[c.t.fav] === inv[i]);
-    if (t) return { i, target: t };
-  }
-  let best = null, bd = 1e9;
-  for (const c of targets) { const d = d2(c, player); if (d < bd) { bd = d; best = c; } }
-  return { i: 0, target: best };
-}
+const ease = (cur, to, k) => cur + (to - cur) * k;
 
 function update() {
   timer++;
@@ -309,6 +300,7 @@ function update() {
   }
   if (state === 'intro' && timer > 120) state = 'play';
 
+  // ふわふわさん（かんせい つき）
   const p = player;
   let ax = 0, ay = 0;
   if (keys.ArrowLeft || keys.KeyA) ax -= 1;
@@ -319,90 +311,96 @@ function update() {
     const dx = touchTarget.x - p.x, dy = touchTarget.y - p.y, d = Math.hypot(dx, dy);
     if (d > 8) { ax = dx / d * Math.min(1, d / 120); ay = dy / d * Math.min(1, d / 120); }
   }
-  // かんせい：おすと すこしずつ はやくなり、はなすと ゆっくり とまる
   const len = Math.hypot(ax, ay); if (len > 1) { ax /= len; ay /= len; }
   const ACCEL = 0.11, FRICTION = 0.965, MAXV = 3.2;
   p.vx = (p.vx + ax * ACCEL) * FRICTION;
   p.vy = (p.vy + ay * ACCEL) * FRICTION;
   const v = Math.hypot(p.vx, p.vy); if (v > MAXV) { p.vx *= MAXV / v; p.vy *= MAXV / v; }
-  p.x += p.vx; p.y += p.vy + Math.cos(timer / 40) * 0.12; // ふわふわ うく
-  // はしに ついたら やわらかく とまる
-  if (p.x < 60) { p.x = 60; p.vx *= -0.3; } if (p.x > W - 80) { p.x = W - 80; p.vx *= -0.3; }
-  if (p.y < 80) { p.y = 80; p.vy *= -0.3; } if (p.y > H - 60) { p.y = H - 60; p.vy *= -0.3; }
-  if (p.surprise > 0) p.surprise--;
+  p.x += p.vx; p.y += p.vy + Math.cos(timer / 40) * 0.12;
+  if (p.x < 60) { p.x = 60; p.vx *= -0.3; } if (p.x > W - 70) { p.x = W - 70; p.vx *= -0.3; }
+  if (p.y < 85) { p.y = 85; p.vy *= -0.3; } if (p.y > H - 60) { p.y = H - 60; p.vy *= -0.3; }
   trail.unshift({ x: p.x, y: p.y }); if (trail.length > 400) trail.pop();
-
-  // なげる
-  if (throwPressed()) {
-    const c = chooseThrow();
-    if (c) {
-      const it = p.inv.splice(c.i, 1)[0];
-      thrown.push({ it, x: p.x + 40, y: p.y, vx: 6, vy: -1, rot: 0, target: c.target, age: 0 });
-      SFX.throw_();
-    } else popup(p.x, p.y - 60, 'なにも もってないよ', '#ffffff', 50, 16);
-  }
 
   // すくろーる と でてくる もの
   scroll += SCROLL;
   if (state === 'play') {
     dist += SCROLL;
-    if (--spawnT <= 0) { spawnCreature(); spawnT = 240 + Math.random() * 150; }
-    if (dist >= STAGE_LEN) spawnBig();
+    const active = creatures.filter(c => !c.leaving).length;
+    if (active < MAX_CREATURES && --spawnT <= 0) { spawnCreature(); spawnT = 150 + Math.random() * 120; }
+    if (dist >= STAGE_LEN) {
+      creatures.forEach(c => { if (!c.leaving) { c.leaving = true; popup(c.x, c.y - 80, 'またね〜', '#ffffff', 60, 16); } });
+      spawnBig();
+    }
   }
-  if (state !== 'intro' && --itemT <= 0) { spawnItem(); itemT = (big ? 80 : 120) + Math.random() * 60; }
+  if (state !== 'intro' && --itemT <= 0) { spawnItem(); itemT = 45 + Math.random() * 35; }
 
-  // なげた もの（あいて に むかって すこし まがる）
-  for (const f of thrown) {
-    f.age++; f.rot += 0.2;
-    const ok = t => t && !t.out && !t.dead && t.x < W - 40;
-    if (!ok(f.target)) { // あいて が いなく なったら べつの あいて を さがす
-      f.target = null; let bd = 1e9;
-      const cands = creatures.concat(big ? [big] : []);
-      for (const c of cands) if (ok(c) && c.x > f.x - 20) { const d = d2(c, f); if (d < bd) { bd = d; f.target = c; } }
+  // たべもの（すこし はやめに ながれる）
+  for (const it of items) {
+    it.age++; it.x -= it.sp; it.y = it.baseY + Math.sin(it.age / 30 + it.ph) * 18;
+    if (d2(it, p) < 58 * 58) {
+      it.dead = true;
+      if (p.inv.length >= INV_MAX) p.inv.shift(); // いっぱい なら いちばん ふるい もの と こうかん
+      p.inv.push(it.it); SFX.pick(); sparkle(it.x, it.y, '✨', 3);
     }
-    const t = f.target;
-    if (t) {
-      const a = Math.atan2(t.y - f.y, t.x - f.x);
-      f.vx += Math.cos(a) * 0.6; f.vy += Math.sin(a) * 0.6;
-      const s = Math.hypot(f.vx, f.vy), m = 7.5;
-      if (s > m) { f.vx *= m / s; f.vy *= m / s; }
-    }
-    f.x += f.vx; f.y += f.vy;
   }
 
-  // あいて
+  // あいて：がめん の なかで のんびり うかんで まっている
   for (const c of creatures) {
     c.age++;
-    if (c.out) { c.x += c.out.vx; c.y += c.out.vy; c.out.vy += c.out.g; c.spin = (c.spin || 0) + 0.2; continue; }
-    const sp = SCROLL + 0.25, a = c.age;
-    switch (c.t.move) {
-      case 'wave': c.x -= sp; c.y = c.baseY + Math.sin(a / 70) * 45; break;
-      case 'hop': c.x -= sp; c.y = c.baseY - Math.sin(a / 45) ** 2 * 50 + 25; break;
-      case 'zigzag': c.x -= sp + 0.1 + Math.sin(a / 50) * 0.3; c.y = c.baseY + Math.sin(a / 55) * 35; break;
-      case 'slow': c.x -= SCROLL * 0.85; c.y = c.baseY + Math.sin(a / 90) * 12; break;
-      default: c.x -= sp; c.y = c.baseY + Math.sin(a / 80) * 22;
-    }
-    if (c.calm > 0) c.calm--;
-    if (!c.said && c.x < W - 60) { // であった！
+    if (c.leaving) { c.x += 1.6; c.y -= 0.5; continue; }
+    const tx = c.hx + Math.sin(c.age / 110 + c.ph) * 30, ty = c.hy + Math.sin(c.age / 70 + c.ph) * 22;
+    c.x = ease(c.x, tx, 0.02); c.y = ease(c.y, ty, 0.04);
+    if (c.ask > 0) c.ask--;
+    if (!c.said && c.x < W - 40) {
       c.said = true;
-      if (!met.met.has(c.t.n)) { met.met.add(c.t.n); popup(c.x, c.y - 80, `${c.t.n} に であった！`, '#ffffff', 90, 18); SFX.hello(); }
+      if (!met.met.has(c.t.n)) { met.met.add(c.t.n); popup(c.x, c.y - 85, `${c.t.n} に であった！`, '#ffffff', 90, 18); SFX.hello(); }
+    }
+    if (c.age > STAY) { c.leaving = true; popup(c.x, c.y - 80, 'またね〜', '#ffffff', 60, 16); }
+    // さわったら わたす
+    if (d2(c, p) < (c.r + 34) ** 2) {
+      const want = FOODS[c.t.fav], k = p.inv.indexOf(want);
+      if (k >= 0) {
+        p.inv.splice(k, 1); c.dead = true;
+        met.met.add(c.t.n); met.friend.add(c.t.n);
+        SFX.friend(); sparkle(c.x, c.y, '💗', 8);
+        popup(c.x, c.y - 70, `${c.t.n} と なかよしに なった！`, '#ffd0e8', 90, 20);
+        addFriend(c.t.e, c.t.n);
+        spawnT = Math.min(spawnT, 90);
+      } else if (c.ask <= 0) {
+        c.ask = 120; SFX.boing();
+        popup(c.x, c.y - 85, `${want} が ほしいな`, '#ffffff', 70, 18);
+      }
     }
   }
 
   // おおきな あいて
   if (big) {
     big.age++;
-    if (big.out) {
-      big.x += big.out.vx; big.y += big.out.vy;
+    if (big.leaving) {
+      big.x += big.lvx; big.y += big.lvy;
       if (big.x > W + 170 || big.x < -170 || big.y < -170 || big.y > H + 170) { big = null; finishStage(); }
-    } else if (big.enter) { big.x -= 0.9; if (big.x <= W - 190) { big.x = W - 190; big.enter = false; } }
-    else {
+    } else {
       bigT++;
-      big.y = H / 2 + Math.sin(bigT / 120) * 90;
-      big.x = W - 190 + Math.sin(bigT / 170) * 40;
-      if (bigT > 60 * 40) { // しばらく したら 「またね」
-        popup(big.x, big.y - 110, 'またね〜！', '#ffffff', 120, 26);
-        big.out = { vx: 1.5, vy: -0.6 };
+      const tx = big.hx + Math.sin(bigT / 170) * 40, ty = big.hy + Math.sin(bigT / 120) * 80;
+      big.x = ease(big.x, tx, 0.015); big.y = ease(big.y, ty, 0.03);
+      if (big.ask > 0) big.ask--;
+      if (bigT > STAY) { popup(big.x, big.y - 110, 'またね〜！', '#ffffff', 120, 26); big.leaving = true; big.lvx = 1.5; big.lvy = -0.6; }
+      if (d2(big, p) < (big.r + 34) ** 2) {
+        const want = FOODS[big.t.fav];
+        let gave = 0;
+        while (big.fed < BIG_NEED && p.inv.includes(want)) { p.inv.splice(p.inv.indexOf(want), 1); big.fed++; gave++; }
+        if (gave) {
+          SFX.munch(); sparkle(big.x, big.y - 40, '💗', 4 * gave);
+          if (big.fed >= BIG_NEED) {
+            SFX.friend(); sparkle(big.x, big.y, '💗', 16);
+            popup(W / 2, 150, `${big.t.n} と なかよしに なった！`, '#ffd0e8', 150, 30);
+            met.bigFriend = true; addFriend(big.t.e, big.t.n, true);
+            big.leaving = true; big.lvx = -0.8; big.lvy = -2.2;
+          } else popup(big.x, big.y - 120, `おいしい！ あと ${BIG_NEED - big.fed}こ`, '#ffd0e8', 70, 20);
+        } else if (!big.ask) {
+          big.ask = 120; SFX.boing();
+          popup(big.x, big.y - 120, `${want} が ほしいな`, '#ffffff', 70, 20);
+        }
       }
     }
   }
@@ -410,69 +408,11 @@ function update() {
   // なかま の ぎょうれつ
   friends.forEach((f, i) => {
     const tp = trail[Math.min(trail.length - 1, (i + 1) * 16)] || player;
-    f.x += (tp.x - 30 - f.x) * 0.15; f.y += (tp.y + Math.sin(timer / 20 + i) * 6 - f.y) * 0.15;
+    f.x = ease(f.x, tp.x - 30, 0.12); f.y = ease(f.y, tp.y + Math.sin(timer / 30 + i) * 6, 0.12);
   });
 
-  // ひろう
-  for (const it of items) {
-    it.age++; it.x -= SCROLL + 0.15; it.y = it.baseY + Math.sin(it.age / 50) * 12;
-    if (d2(it, p) < 55 * 55) {
-      if (p.inv.length >= INV_MAX) { if (!it.full) { popup(it.x, it.y - 30, 'もう もてないよ', '#ffffff', 40, 14); it.full = true; } continue; }
-      it.dead = true; p.inv.push(it.it); SFX.pick(); sparkle(it.x, it.y, '✨', 3);
-    }
-  }
-
-  // あたり
-  for (const f of thrown) {
-    if (f.dead) continue;
-    for (const c of creatures) {
-      if (c.out || c.dead || (f.target && f.target !== c) || d2(f, c) > (c.r + 18) ** 2) continue;
-      f.dead = true;
-      if (isWeapon(f.it)) {
-        c.out = { vx: 5, vy: -6, g: 0.15 }; SFX.poon(); burst(c.x, c.y, '#fff3a0', 14);
-        popup(c.x, c.y - 60, `ぽーん！ ${c.t.n} を やっつけた`, '#fff6a8', 60, 18);
-      } else if (FOODS[c.t.fav] === f.it) {
-        c.dead = true; SFX.friend(); sparkle(c.x, c.y, '💗', 8);
-        met.met.add(c.t.n); met.friend.add(c.t.n);
-        popup(c.x, c.y - 60, `${c.t.n} と なかよしに なった！`, '#ffd0e8', 90, 20);
-        addFriend(c.t.e, c.t.n);
-      } else {
-        c.calm = 200; SFX.munch(); popup(c.x, c.y - 60, 'もぐもぐ… これじゃ ないみたい', '#ffffff', 60, 15);
-      }
-      break;
-    }
-    if (!f.dead && big && !big.out && (!f.target || f.target === big) && d2(f, big) < (big.r + 18) ** 2) {
-      f.dead = true;
-      if (isWeapon(f.it)) {
-        big.hits++; SFX.poon(); burst(f.x, f.y, '#fff3a0', 8);
-        if (big.hits >= 5) {
-          popup(W / 2, 150, `ぽーん！ ${big.t.n} を やっつけた`, '#fff6a8', 120, 28);
-          big.out = { vx: 6, vy: -4 };
-        } else popup(big.x, big.y - 120, 'くすぐったいよ〜', '#ffffff', 50, 18);
-      } else if (FOODS[big.t.fav] === f.it) {
-        big.fed++; SFX.munch(); sparkle(big.x, big.y - 40, '💗', 4);
-        if (big.fed >= BIG_NEED) {
-          SFX.friend(); sparkle(big.x, big.y, '💗', 16);
-          popup(W / 2, 150, `${big.t.n} と なかよしに なった！`, '#ffd0e8', 150, 30);
-          met.bigFriend = true; addFriend(big.t.e, big.t.n, true);
-          big.out = { vx: -1, vy: -2.5 };
-        } else popup(big.x, big.y - 120, `おいしい！ あと ${BIG_NEED - big.fed}こ`, '#ffd0e8', 60, 20);
-      } else { SFX.munch(); popup(big.x, big.y - 120, 'もぐもぐ… これじゃ ないなあ', '#ffffff', 60, 18); }
-    }
-  }
-
-  // ぶつかっても だいじょうぶ（びっくり するだけ）
-  for (const c of creatures) {
-    if (c.out || c.dead || c.calm > 0 || p.surprise > 0) continue;
-    if (d2(c, p) < (c.r + 26) ** 2) {
-      p.surprise = 50; c.calm = 120; SFX.boing();
-      p.vx -= 2; p.vy += (p.y < c.y ? -1.5 : 1.5);
-      popup(p.x, p.y - 60, 'びっくり！', '#ffffff', 40, 18);
-    }
-  }
-
   const alive = o => !o.dead && o.x > -200 && o.x < W + 220 && o.y > -200 && o.y < H + 200;
-  creatures = creatures.filter(alive); thrown = thrown.filter(f => alive(f) && f.age < 240); items = items.filter(alive);
+  creatures = creatures.filter(alive); items = items.filter(alive);
   updateParticles();
 }
 
@@ -578,9 +518,9 @@ function drawBubble(x, y, food) {
   ctx.beginPath(); ctx.arc(x - 20, y + 30, 3, 0, Math.PI * 2); ctx.fill();
   drawEmoji(food, x, y + 1, 24);
 }
-function drawItemIcon(it, x, y, size) {
-  ctx.fillStyle = isWeapon(it) ? 'rgba(255,230,120,0.6)' : 'rgba(255,190,220,0.6)';
-  ctx.beginPath(); ctx.arc(x, y, size * 0.75, 0, Math.PI * 2); ctx.fill();
+function drawFood(it, x, y, size) {
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.beginPath(); ctx.arc(x, y, size * 0.72, 0, Math.PI * 2); ctx.fill();
   drawEmoji(it, x, y, size);
 }
 function textOut(txt, x, y, size, col, align) {
@@ -593,18 +533,14 @@ function drawHUD() {
   ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(0, 0, W, 50);
   textOut(stage.name, 14, 25, 20, '#fff', 'left');
   textOut('もちもの', 196, 25, 15, '#fff', 'left');
-  const c = chooseThrow();
+  const want = wantedFoods().map(k => FOODS[k]);
   for (let i = 0; i < INV_MAX; i++) {
     const x = 290 + i * 46;
     ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.arc(x, 25, 19, 0, Math.PI * 2); ctx.fill();
     const it = player.inv[i];
     if (it) {
-      if (isWeapon(it)) { ctx.fillStyle = 'rgba(255,230,120,0.7)'; ctx.beginPath(); ctx.arc(x, 25, 19, 0, Math.PI * 2); ctx.fill(); }
+      if (want.includes(it)) { ctx.strokeStyle = '#ff7fb0'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, 25, 21, 0, Math.PI * 2); ctx.stroke(); }
       drawEmoji(it, x, 25, 26);
-      if (c && c.i === i) {
-        ctx.strokeStyle = '#ff7fb0'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, 25, 21, 0, Math.PI * 2); ctx.stroke();
-        textOut('つぎ', x, 56, 13, '#ff7fb0');
-      }
     }
   }
   const total = stage.creatures.length + 1;
@@ -625,10 +561,10 @@ function drawTitle() {
   drawHero(W / 2, 200 + Math.sin(timer / 30) * 8, 1.5);
   textOut('ふわふわさんの だいぼうけん', W / 2, 330, 46, '#fff');
   ['やじるしの きー（または がめんを なぞる）で ふわふわ うごくよ',
-   'ひろった ものは 「なげる」ぼたん（えんたー きー）で なげよう',
-   'ぶき ⭐ なら ぽーんと やっつける ／ すきな たべもの なら なかよしに なれるよ',
-  ].forEach((l, i) => textOut(l, W / 2, 385 + i * 28, 17, '#fff'));
-  if (Math.floor(timer / 40) % 2) textOut('えんたー きー または たっぷで はじめる', W / 2, 482, 24, '#fff6a8');
+   'ながれてくる たべものに さわって あつめよう',
+   'すきな たべものを もって さわると なかよしに なれるよ',
+  ].forEach((l, i) => textOut(l, W / 2, 385 + i * 28, 18, '#fff'));
+  if (Math.floor(timer / 40) % 2) textOut('なにか きーを おすか たっぷで はじめる', W / 2, 482, 24, '#fff6a8');
   ['🐶', '🐰', '🐒', '🐨', '🐬', '🐧', '🦄', '🐉'].forEach((e, i) => drawEmoji(e, 90 + i * 112, 52 + Math.sin(timer / 20 + i) * 8, 44));
 }
 
@@ -638,25 +574,24 @@ function render() {
   if (state === 'book') { drawBook(); return; }
   if (state === 'ending') { drawEnding(); return; }
   drawBackground();
-  for (const it of items) drawItemIcon(it.it, it.x, it.y, 34);
   for (const c of creatures) {
-    const sz = 76;
-    if (c.out) { ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.spin || 0); drawEmoji(c.t.e, 0, 0, sz, true); ctx.restore(); continue; }
-    drawEmoji(c.t.e, c.x, c.y, sz * (1 + Math.sin(c.age / 12) * 0.04), true);
-    if (c.calm > 0) drawEmoji('💤', c.x + 30, c.y - 42, 20);
-    else drawBubble(c.x + 34, c.y - 60, FOODS[c.t.fav]);
+    drawEmoji(c.t.e, c.x, c.y, 80 * (1 + Math.sin(c.age / 15) * 0.04), true);
+    if (!c.leaving) {
+      const has = player.inv.includes(FOODS[c.t.fav]);
+      drawBubble(c.x + 36, c.y - 62, FOODS[c.t.fav]);
+      if (has) drawEmoji('💗', c.x + 58, c.y - 82, 18 + Math.sin(timer / 8) * 3);
+    }
   }
   if (big) {
     drawEmoji(big.t.e, big.x, big.y, 180 * (1 + Math.sin(big.age / 20) * 0.03), true);
-    if (!big.out) {
+    if (!big.leaving) {
       drawBubble(big.x + 70, big.y - 110, FOODS[big.t.fav]);
       for (let i = 0; i < BIG_NEED; i++) drawEmoji(i < big.fed ? '💗' : '🤍', big.x - 30 + i * 30, big.y + 105, 22);
     }
   }
+  for (const it of items) drawFood(it.it, it.x, it.y, 36);
   friends.forEach(f => drawEmoji(f.e, f.x, f.y, f.big ? 60 : 44));
-  for (const f of thrown) { ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.rot); drawEmoji(f.it, 0, 0, 34); ctx.restore(); }
   drawHero(player.x, player.y, 1, true);
-  if (player.surprise > 0) drawEmoji('❗', player.x + 10, player.y - 70, 26);
   for (const q of particles) {
     if (q.txt) drawEmoji(q.txt, q.x, q.y, q.r, false, Math.min(1, q.life / 30));
     else { ctx.globalAlpha = Math.min(1, q.life / 30); ctx.fillStyle = q.col; ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
@@ -720,6 +655,7 @@ function loop(t) {
   while (acc >= 1000 / 60) {
     update();
     for (const k in pressed) delete pressed[k];
+    anyKey = false;
     acc -= 1000 / 60;
   }
   render();
@@ -734,6 +670,8 @@ window.__game = {
   startStage: i => { if (!player) startGame(); startStage(i); },
   toBig: () => { dist = STAGE_LEN; },
   give: arr => { player.inv = arr.slice(0, INV_MAX); },
-  get info() { return { inv: player.inv.slice(), friends: friends.length, met: met && met.met.size, creatures: creatures.length, big: !!big }; },
-  FOODS, STAGES,
+  moveTo: (x, y) => { player.x = x; player.y = y; },
+  get creatures() { return creatures.map(c => ({ x: c.x, y: c.y, fav: FOODS[c.t.fav], n: c.t.n, leaving: c.leaving })); },
+  get bigPos() { return big && { x: big.x, y: big.y, fed: big.fed }; },
+  get info() { return { inv: player.inv.slice(), friends: friends.length, met: met && met.met.size, creatures: creatures.length, big: !!big, items: items.length }; },
 };
