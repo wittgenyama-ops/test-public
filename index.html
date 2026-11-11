@@ -52,6 +52,8 @@
   #toast{position:absolute;left:50%;top:14%;transform:translateX(-50%);padding:8px 18px;border-radius:999px;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-weight:800;font-size:18px;opacity:0;transition:opacity .35s;white-space:nowrap}
   #camhint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);font-size:13px;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.6);opacity:.85;white-space:nowrap}
   @media (pointer:coarse){#camhint{bottom:auto;top:calc(14% + 46px)}}
+  #attr{position:absolute;right:8px;bottom:4px;max-width:70vw;font-size:10px;line-height:1.3;text-align:right;opacity:.85;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+  @media (pointer:coarse){#attr{bottom:auto;top:4px;right:auto;left:16px;top:auto;bottom:calc(100px + env(safe-area-inset-bottom))}}
   #topbtns{position:absolute;right:16px;top:180px;display:flex;flex-direction:column;gap:8px;pointer-events:auto}
   .ibtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--glass-b);background:var(--glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font-size:20px;cursor:pointer}
   /* touch pad */
@@ -100,7 +102,7 @@
     </div>
     <div class="stages">
       <button class="stage-btn s1" data-stage="tokyo">🗼 とうきょうタワー<small>港区・芝公園／浜松町／東京湾</small></button>
-      <button class="stage-btn s2" data-stage="anagawa">🚝 ちばし あながわ<small>稲毛区・モノレール／京葉道路</small></button>
+      <button class="stage-btn s2" data-stage="anagawa">🚝 ちばし あながわ<small>国土地理院の しゃしん・ちけい・たてもので さいげん</small></button>
     </div>
     <div class="card keys">
       <kbd>←</kbd><kbd>→</kbd> ひだり・みぎ　<kbd>↑</kbd><kbd>↓</kbd> うえ・した<br>
@@ -120,7 +122,7 @@
   <canvas id="mini" width="300" height="300"></canvas>
   <div id="topbtns"><button class="ibtn" id="btnHome" title="タイトルへ">⌂</button><button class="ibtn" id="btnCam" title="カメラをきりかえ (C)">🎥</button><button class="ibtn" id="btnHover" title="ホバリング (H)">⏸</button><button class="ibtn" id="btnSound" title="おと">🔊</button></div>
   <div id="gauge" class="card"><div class="spd"><span id="spd">0</span><small>km/h</small></div><div class="alt">たかさ <span id="alt">0</span> m</div><div id="bar"><i></i></div></div>
-  <div id="warn">まちに もどるよ！</div><div id="toast"></div><div id="camhint">ドラッグで まわして みられるよ・ホイール／ピンチで ズーム</div>
+  <div id="warn">まちに もどるよ！</div><div id="toast"></div><div id="attr"></div><div id="camhint">ドラッグで まわして みられるよ・ホイール／ピンチで ズーム</div>
   <div id="touch">
     <div class="pad" id="padR"><button class="tb sp" data-k="fast">はやく ⏩</button><button class="tb sp" data-k="slow">ゆっくり ⏪</button></div>
     <div class="pad" id="padL">
@@ -164,6 +166,7 @@ class Path{
 }
 // smooth a 2D polyline (Chaikin)
 function smooth(pts,it=3){let p=pts;for(let k=0;k<it;k++){const q=[p[0]];for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1];q.push(a.map((v,j)=>v*.75+b[j]*.25),a.map((v,j)=>v*.25+b[j]*.75));}q.push(p[p.length-1]);p=q;}return p;}
+function densify(pts,step){const o=[pts[0]];for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];const L=Math.hypot(b[0]-a[0],b[1]-a[1]);const n=Math.ceil(L/step);for(let k=1;k<=n;k++)o.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n]);}return o;}
 function offsetLine(pts,d){return pts.map((p,i)=>{const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];let dx=b[0]-a[0],dz=b[1]-a[1];const l=Math.hypot(dx,dz)||1;return [p[0]-dz/l*d,p[1]+dx/l*d];});}
 
 // geometry batch (manual buffers -> one mesh per material)
@@ -502,49 +505,29 @@ const STAGES={
   ],
  },
  anagawa:{
-  name:'ステージ2　千葉市稲毛区　穴川周辺',seed:4321,gridAngle:.32,lot:17,
-  sun:{elev:52,azim:150,turb:3.5,ray:1.2,exp:.55,fog:0xaec6dc,fogD:.00017},
-  start:{x:200,y:110,z:1300,yaw:0.15},
-  base:'#857f72',
-  water:{poly:[[-20000,-500],[-6500,-500],[-4500,2500],[-1500,3600],[1500,5200],[3000,7000],[3000,20000],[-20000,20000]],holes:[]},
-  parks:[
-    [[-1000,-1950],[350,-1950],[350,-1120],[-1000,-1120]],  // 県総合スポーツセンター
-    [[1400,-900],[1600,-900],[1600,-700],[1400,-700]],
-    [[-300,600],[-160,600],[-160,720],[-300,720]],
-    [[300,1900],[500,1900],[500,2050],[300,2050]],
-    [[-2400,-400],[-2150,-400],[-2150,-150],[-2400,-150]],
-    [[1800,300],[2050,300],[2050,520],[1800,520]],
-    [[-400,2400],[-150,2400],[-150,2650],[-400,2650]],
-    [[-2600,1600],[-2250,1600],[-2250,1900],[-2600,1900]],
-  ],
-  roads:[
-    {p:[[450,3500],[250,1100],[0,0],[-100,-1200],[-300,-2200],[-600,-3500]],w:22,cars:1,zone:150}, // モノレール通り
-    {p:[[-3500,-700],[-1800,-200],[-600,300],[600,800],[1600,1250],[3500,2300]],w:34,cars:2,zone:20},  // 京葉道路
-    {p:[[-3500,150],[-1200,100],[0,0],[1500,-150],[3500,-300]],w:18,cars:1,zone:130},
-    {p:[[-900,-3500],[-750,-1000],[-650,300],[-800,1800],[-1100,3500]],w:18,cars:1,zone:120},
-    {p:[[0,0],[-700,700],[-1500,1500],[-2500,2400],[-3500,3000]],w:14,cars:1,zone:90},
-    {p:[[900,-3500],[800,-600],[700,800],[900,3500]],w:14,cars:1,zone:90},
-    {p:[[-3500,-2400],[-1000,-2100],[1000,-2300],[3500,-2600]],w:16,cars:1,zone:100},
-    {p:[[-3000,3500],[-2000,1800],[-1800,0],[-2200,-3500]],w:14,cars:1,zone:80},
-    {p:[[2200,-3500],[2000,0],[2300,2600],[2600,3500]],w:16,cars:1,zone:100},
-  ],
-  ramps:[{x:-560,z:180,r:55},{x:-740,z:420,r:55}],
-  elevated:[],
-  monorail:{p:[[450,3500],[250,1100],[0,0],[-100,-1200],[-300,-2200],[-600,-3500]],y:15,stations:[{s:'穴川駅',x:0,z:0},{s:'スポーツセンター駅',x:-100,z:-1200},{s:'天台駅',x:250,z:1100}]},
-  rails:[],
-  centers:[{x:2300,z:2700,r:700,h:80},{x:0,z:0,r:260,h:22}],
+  name:'ステージ2　千葉市稲毛区　穴川周辺（国土地理院データで再現）',seed:4321,gridAngle:0,real:'assets/anagawa/',
+  sun:{elev:48,azim:160,turb:3.5,ray:1.2,exp:.55,fog:0xaec6dc,fogD:.00012},
+  start:{x:-80,y:120,z:1150,yaw:0.05},
+  base:'#857f72',water:{poly:[],holes:[]},parks:[],roads:[],elevated:[],rails:[],centers:[],
+  attribution:'出典：国土地理院（地理院タイル［全国最新写真（シームレス）］・数値標高モデル・地理院地図Vector）を加工して作成',
   landmarks:[
-    {n:'穴川駅（千葉都市モノレール）',d:'ぶらさがり式モノレールの えき',x:0,z:0,r:260},
-    {n:'千葉都市モノレール 2号線',d:'レールに ぶらさがって はしる モノレール',x:-60,z:-600,r:200},
-    {n:'スポーツセンター駅',d:'千葉県総合スポーツセンターの もよりえき',x:-100,z:-1200,r:180},
-    {n:'千葉県総合スポーツセンター',d:'りくじょうきょうぎじょう・やきゅうじょう・たいいくかん',x:-350,z:-1550,r:420},
-    {n:'天台駅',d:'モノレールの えき',x:250,z:1100,r:180},
-    {n:'京葉道路 穴川インターチェンジ',d:'東京と千葉を むすぶ こうそくどうろ',x:-650,z:300,r:280},
-    {n:'量子科学技術研究開発機構',d:'けんきゅうしょの キャンパス',x:730,z:-180,r:320},
-    {n:'千葉大学 西千葉キャンパス',d:'みどりの おおい だいがく',x:-1500,z:1200,r:450},
-    {n:'千葉駅方面',d:'千葉市の まちなか',x:2300,z:2700,r:700},
-    {n:'幕張新都心',d:'うみぞいの ビル群',x:-5200,z:900,r:900},
-    {n:'稲毛の海（東京湾）',d:'千葉の うみべ',x:-3600,z:3600,r:1200},
+    {n:'穴川駅（千葉都市モノレール）',d:'ぶらさがり式モノレールの えき',x:0,z:0,r:150},
+    {n:'千葉都市モノレール 2号線',d:'レールに ぶらさがって はしる モノレール',x:200,z:-200,r:120},
+    {n:'京葉道路 穴川インターチェンジ',d:'東京と千葉を むすぶ こうそくどうろ',x:172,z:-260,r:160},
+    {n:'スポーツセンター駅',d:'千葉県総合スポーツセンターの もよりえき',x:386,z:-411,r:140},
+    {n:'千葉県総合スポーツセンター',d:'りくじょうきょうぎじょう・やきゅうじょう・たいいくかん',x:800,z:-1000,r:380},
+    {n:'動物公園駅',d:'千葉市動物公園の もよりえき',x:1232,z:-339,r:160},
+    {n:'天台駅',d:'モノレールの えき',x:85,z:899,r:150},
+    {n:'作草部駅',d:'モノレールの えき',x:308,z:1527,r:150},
+    {n:'量子科学技術研究開発機構',d:'けんきゅうしょの キャンパス',x:-883,z:514,r:230},
+    {n:'敬愛大学・敬愛学園',d:'穴川の だいがくと こうこう',x:-715,z:650,r:150},
+    {n:'千葉大学 西千葉キャンパス',d:'みどりの おおい だいがく',x:-900,z:1250,r:330},
+    {n:'千葉経済大学',d:'だいがくと ふぞくこうこう',x:-150,z:1290,r:160},
+    {n:'稲毛駅（JR総武線）',d:'JRの えき',x:-1761,z:233,r:200},
+    {n:'西千葉駅（JR総武線）',d:'千葉大学の もよりえき',x:-785,z:1858,r:200},
+    {n:'みどり台駅（京成千葉線）',d:'京成電鉄の えき',x:-1324,z:1581,r:160},
+    {n:'千葉駅方面',d:'千葉市の まんなか',x:134,z:2926,r:500},
+    {n:'東京湾（稲毛の海）',d:'うめたてちの むこうに うみ',x:-4000,z:4300,r:1500},
   ],
  }
 };
@@ -575,7 +558,7 @@ function shared(){
 }
 
 class World{
-  constructor(key){
+  constructor(key,real){
     this.key=key;const d=this.def=STAGES[key];const sh=shared();this.sh=sh;
     this.rand=mulberry32(d.seed);const R=this.rand;
     this.scene=new THREE.Scene();this.group=new THREE.Group();this.scene.add(this.group);
@@ -583,6 +566,7 @@ class World{
     this.B={glass:new Batch(),office:new Batch(),apt:new Batch(),shop:new Batch(),house:new Batch(),roof:new Batch(),plain:new Batch(),deck:new Batch(),far:{glass:new Batch(),office:new Batch(),apt:new Batch(),shop:new Batch()}};
     this.trees=[];this.carPaths=[];this.movers=[];this.disposables=[];
     this.setupSky();
+    if(real){this.buildReal(real);return;}
     this.drawGround();
     this.buildLandmarks();
     this.buildElevated();
@@ -995,6 +979,7 @@ class World{
     for(const r of d.roads){if(!r.cars)continue;const p=r.sp;const lanes=r.w>30?[2,6.5,11]:r.w>20?[2.5,6]:[2.5];
       for(const side of [-1,1])for(const ln of lanes){const o=offsetLine(p,side*ln);const P=new Path((side>0?o:o.slice().reverse()).map(q=>[q[0],.8,q[1]]));this.carPaths.push({path:P,n:Math.floor(P.total/(r.w>30?45:60)),speed:r.w>30?27:13});}}
     let total=0;this.carPaths.forEach(c=>total+=c.n);
+    if(!total){this.cars=[];this.trains=[];return;}
     const geo=new THREE.BoxGeometry(1.8,1.5,4.4);geo.translate(0,0,0);
     const cab=new THREE.BoxGeometry(1.6,.7,2.2);cab.translate(0,1.05,.2);
     const im=new THREE.InstancedMesh(geo,new THREE.MeshStandardMaterial({roughness:.3,metalness:.55}),total);
@@ -1008,12 +993,157 @@ class World{
     // trains
     this.trains=[];
     const mk=(stripe,len,w,h,nCars)=>{const tex=makeTrainTexture(stripe);const g=new THREE.BoxGeometry(w,h,len);const m=new THREE.MeshStandardMaterial({map:tex,roughness:.35,metalness:.5});const im=new THREE.InstancedMesh(g,m,nCars);im.castShadow=true;this.group.add(im);return im;};
-    if(this.trainPaths){for(const tp of this.trainPaths){const im=mk(tp.color,19.5,2.9,3.6,10);this.trains.push({path:tp.path,im,n:10,len:20,s:R()*tp.path.total,v:16+R()*6,yOff:1.8,hang:0});}}
+    if(this.trainPaths){for(const tp of this.trainPaths){const nc=tp.cars||10;const im=mk(tp.color,19.5,2.9,3.6,nc);this.trains.push({path:tp.path,im,n:nc,len:20,s:R()*tp.path.total,v:16+R()*6,yOff:1.8,hang:0});}}
     if(this.monoPaths){for(const p of this.monoPaths){const im=mk('#2a72c8',15,2.6,3.0,2);this.trains.push({path:p,im,n:2,len:15.6,s:R()*p.total,v:11,yOff:-3.4,hang:1});}}
   }
   buildClouds(){
     this.clouds=[];const R=this.rand;const mat=new THREE.SpriteMaterial({map:this.sh.cloud,transparent:true,depthWrite:false,fog:false,opacity:.85});
     for(let i=0;i<60;i++){const s=new THREE.Sprite(mat);const a=R()*6.28,r=400+R()*6500;s.position.set(Math.cos(a)*r,520+R()*700,Math.sin(a)*r);const k=500+R()*900;s.scale.set(k,k*.45,1);this.group.add(s);this.clouds.push(s);}
+  }
+  // =================================================================
+  //  REAL TERRAIN STAGE (GSI aerial photo + DEM + base-map buildings)
+  // =================================================================
+  buildReal(R){
+    const D=R.data,rnd=this.rand,sh=this.sh;
+    const dec=b=>{const s=atob(b);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return new Int16Array(u.buffer);};
+    this.gN={...D.near,h:dec(D.near.h)};this.gF={...D.far,h:dec(D.far.h)};
+    const imgTex=img=>{const t=new THREE.Texture(img);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=renderer.capabilities.getMaxAnisotropy();t.needsUpdate=true;return t;};
+    const texN=imgTex(R.nearImg),texF=imgTex(R.farImg);
+    const NH=this.gN.half,FH=this.gF.half;
+    // --- terrain meshes
+    const terrain=(g,tex,drop)=>{const n=g.n;const geo=new THREE.PlaneGeometry(g.half*2,g.half*2,n-1,n-1);geo.rotateX(-Math.PI/2);const p=geo.attributes.position;
+      for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i);const c=Math.round((x+g.half)/g.step),r=Math.round((z+g.half)/g.step);let y=g.h[r*n+c]/10;if(drop&&Math.abs(x)<drop&&Math.abs(z)<drop)y-=6;p.setY(i,y);}
+      geo.computeVertexNormals();const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:tex,roughness:.95}));m.receiveShadow=true;this.group.add(m);return m;};
+    terrain(this.gF,texF,NH-this.gF.step*1.5).position.y=-.15;
+    terrain(this.gN,texN,0);
+    // outer land + sea (Tokyo Bay lies to the south-west)
+    const oc=makeCanvas(256,256),og=oc.getContext('2d');noiseFill(og,256,256,'#77756c',.18,6000);for(let i=0;i<500;i++){og.fillStyle=['#8b877d','#6f6e66','#6a7556','#556b3e','#9a958a'][i%5];og.fillRect(Math.random()*256,Math.random()*256,3+Math.random()*9,3+Math.random()*9);}
+    const ot=canvasTex(oc);ot.repeat.set(220,220);const om=new THREE.Mesh(new THREE.PlaneGeometry(80000,80000),new THREE.MeshStandardMaterial({map:ot,roughness:1}));om.rotation.x=-Math.PI/2;om.position.y=.2;this.group.add(om);
+    const nc=makeCanvas(256,256),ng=nc.getContext('2d');ng.fillStyle='rgb(128,128,255)';ng.fillRect(0,0,256,256);for(let i=0;i<1400;i++){ng.fillStyle=`rgba(${100+Math.random()*56|0},${100+Math.random()*56|0},255,.5)`;ng.fillRect(Math.random()*256,Math.random()*256,6+Math.random()*14,2);}
+    const nt=new THREE.CanvasTexture(nc);nt.wrapS=nt.wrapT=THREE.RepeatWrapping;nt.repeat.set(.02,.02);this.waterNormal=nt;
+    const wm=new THREE.MeshPhysicalMaterial({color:0x1f4152,roughness:.08,normalMap:nt,normalScale:new THREE.Vector2(.5,.5)});
+    const seaPoly=[[-FH,-FH],[FH,-FH],[FH,FH],[600,FH],[600,40000],[-40000,40000],[-40000,1200],[-FH,1200]];
+    const shp=new THREE.Shape(seaPoly.map(p=>new THREE.Vector2(p[0],-p[1])));const wg=new THREE.ShapeGeometry(shp);wg.rotateX(-Math.PI/2);
+    const wp=wg.attributes.position,wuv=[];for(let i=0;i<wp.count;i++)wuv.push(wp.getX(i),wp.getZ(i));wg.setAttribute('uv',new THREE.Float32BufferAttribute(wuv,2));
+    const water=new THREE.Mesh(wg,wm);water.position.y=.5;this.group.add(water);
+    this.ground=(x,z)=>{const inN=Math.abs(x)<NH-1&&Math.abs(z)<NH-1;const g=inN?this.gN:this.gF;if(Math.abs(x)>=g.half||Math.abs(z)>=g.half)return 0;
+      const fx=(x+g.half)/g.step,fz=(z+g.half)/g.step,c=Math.floor(fx),r=Math.floor(fz),tx=fx-c,tz=fz-r,n=g.n,H=g.h;
+      const a=H[r*n+c],b=H[r*n+c+1],cc=H[(r+1)*n+c],d=H[(r+1)*n+c+1];return Math.max(.5,((a*(1-tx)+b*tx)*(1-tz)+(cc*(1-tx)+d*tx)*tz)/10);};
+    for(let j=0;j<HMN;j++)for(let i=0;i<HMN;i++){const x=-HMEXT+(i+.5)*HMC,z=-HMEXT+(j+.5)*HMC;this.hm[j*HMN+i]=this.ground(x,z);}
+    // photo sampler (for roof colours / trees / far buildings)
+    const sampler=(img,size)=>{const c=makeCanvas(size,size),g=c.getContext('2d');g.drawImage(img,0,0,size,size);const d=g.getImageData(0,0,size,size).data;return {size,d};};
+    const SN=sampler(R.nearImg,1750),SF=sampler(R.farImg,768);
+    const px=(S,half,x,z)=>{const i=Math.floor((x+half)/(2*half)*S.size),j=Math.floor((z+half)/(2*half)*S.size);if(i<0||j<0||i>=S.size||j>=S.size)return null;const o=(j*S.size+i)*4;return [S.d[o],S.d[o+1],S.d[o+2]];};
+    // --- buildings from the base map
+    const roofB=new Batch();const KINDS=['house','apt','shop','glass','office','shop'];const white=[1,1,1];
+    const lin=v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);};
+    for(const b of D.buildings){
+      let k=b[0];const h=b[1]/10;const n=(b.length-2)/2;let pts=[];for(let i=0;i<n;i++)pts.push([b[2+i*2]/10,b[3+i*2]/10]);
+      let area=0;for(let i=0;i<n;i++){const p=pts[i],q=pts[(i+1)%n];area+=p[0]*q[1]-q[0]*p[1];}if(area>0)pts.reverse();
+      let gmin=1e9,gsum=0;for(const p of pts){const g=this.ground(p[0],p[1]);gmin=Math.min(gmin,g);gsum+=g;}
+      const base=gmin-.8,top=gsum/n+h,H=top-base;
+      let kind=KINDS[k];if(k===1&&rnd()<.3)kind='office';
+      const F=sh.F[kind],bt=this.B[kind],tint=this.tint(kind);
+      let acc=rnd()*12;
+      for(let i=0;i<n;i++){const p=pts[i],q=pts[(i+1)%n];const L=Math.hypot(q[0]-p[0],q[1]-p[1]);if(L<.05)continue;
+        bt.quad([p[0],base,p[1]],[q[0]-p[0],0,q[1]-p[1]],[0,H,0],[[acc/F.tile[0],0],[(acc+L)/F.tile[0],0],[(acc+L)/F.tile[0],H/F.tile[1]],[acc/F.tile[0],H/F.tile[1]]],tint);acc+=L;}
+      // detached houses with a rectangular footprint get a pitched (gable) roof in their real roof colour
+      if(k===0&&n===4){const e=(i)=>[pts[(i+1)%4][0]-pts[i][0],pts[(i+1)%4][1]-pts[i][1]];let ok=true;
+        for(let i=0;i<4;i++){const u=e(i),v=e((i+1)%4);const c=Math.abs(u[0]*v[0]+u[1]*v[1])/(Math.hypot(...u)*Math.hypot(...v)+1e-9);if(c>.2)ok=false;}
+        if(ok){const L0=Math.hypot(...e(0)),L1=Math.hypot(...e(1));const s0=L0>=L1?0:1;const A=pts[s0],B=pts[(s0+1)%4],C=pts[(s0+2)%4],Dd=pts[(s0+3)%4];
+          const shortL=Math.min(L0,L1),rh=Math.min(2.6,shortL*.32);const cx=(A[0]+C[0])/2,cz=(A[1]+C[1])/2;
+          let rc=[0,0,0],cnt=0;for(const [fx,fz] of [[0,0],[.25,.25],[-.25,.25],[.25,-.25],[-.25,-.25]]){const q=px(SN,NH,cx+(B[0]-A[0])*fx+(Dd[0]-A[0])*fz,cz+(B[1]-A[1])*fx+(Dd[1]-A[1])*fz);if(q){rc[0]+=q[0];rc[1]+=q[1];rc[2]+=q[2];cnt++;}}
+          rc=cnt?rc.map(v=>lin(Math.min(255,v/cnt*.95))):col('#555a60');
+          const ov=.45,ex=(p,dx,dz)=>[p[0]+dx,p[1]+dz];const ux=(B[0]-A[0])/L0||0;
+          // overhang along both axes
+          const ax=[(B[0]-A[0]),(B[1]-A[1])],al=Math.hypot(...ax),ay=[(Dd[0]-A[0]),(Dd[1]-A[1])],bl=Math.hypot(...ay);const an=[ax[0]/al*ov,ax[1]/al*ov],bn=[ay[0]/bl*ov,ay[1]/bl*ov];
+          const A2=[A[0]-an[0]-bn[0],A[1]-an[1]-bn[1]],B2=[B[0]+an[0]-bn[0],B[1]+an[1]-bn[1]],C2=[C[0]+an[0]+bn[0],C[1]+an[1]+bn[1]],D2=[Dd[0]-an[0]+bn[0],Dd[1]-an[1]+bn[1]];
+          const M1=[(A2[0]+D2[0])/2,(A2[1]+D2[1])/2],M2=[(B2[0]+C2[0])/2,(B2[1]+C2[1])/2];const yR=top+rh,yE=top-.15;
+          const P3=(p,y)=>[p[0],y,p[1]];const RB=this.B.roof;
+          const triO=(bt2,a1,b1,c1,ref,colr,uv)=>{const u=[b1[0]-a1[0],b1[1]-a1[1],b1[2]-a1[2]],v=[c1[0]-a1[0],c1[1]-a1[1],c1[2]-a1[2]];const nn=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];
+            if(nn[0]*ref[0]+nn[1]*ref[1]+nn[2]*ref[2]<0)bt2.tri(a1,c1,b1,uv,colr);else bt2.tri(a1,b1,c1,uv,colr);};
+          const up1=[ -bn[0],1,-bn[1]],up2=[bn[0],1,bn[1]];
+          triO(RB,P3(A2,yE),P3(B2,yE),P3(M2,yR),up1,rc,[0,0]);triO(RB,P3(A2,yE),P3(M2,yR),P3(M1,yR),up1,rc,[0,0]);
+          triO(RB,P3(C2,yE),P3(D2,yE),P3(M1,yR),up2,rc,[0,0]);triO(RB,P3(C2,yE),P3(M1,yR),P3(M2,yR),up2,rc,[0,0]);
+          const g1=[(A[0]+Dd[0])/2,(A[1]+Dd[1])/2],g2=[(B[0]+C[0])/2,(B[1]+C[1])/2];
+          triO(bt,P3(Dd,top),P3(A,top),P3(g1,top+rh*.9),[-ax[0],0,-ax[1]],tint,F.flat);triO(bt,P3(B,top),P3(C,top),P3(g2,top+rh*.9),[ax[0],0,ax[1]],tint,F.flat);
+          let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const p of pts){x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);z0=Math.min(z0,p[1]);z1=Math.max(z1,p[1]);}
+          this.markBox(x0,z0,x1,z1,top+rh);continue;}}
+      const tri=THREE.ShapeUtils.triangulateShape(pts.map(p=>new THREE.Vector2(p[0],p[1])),[]);
+      const o=roofB.n;for(const p of pts){roofB.pos.push(p[0],top,p[1]);roofB.nor.push(0,1,0);roofB.uv.push((p[0]+NH)/(2*NH),1-(p[1]+NH)/(2*NH));roofB.col.push(1,1,1);}roofB.n+=n;
+      for(const t of tri){const [a,c2,d2]=t;// keep upward facing winding
+        const A=pts[a],B2=pts[c2],C2=pts[d2];const cr=(B2[0]-A[0])*(C2[1]-A[1])-(B2[1]-A[1])*(C2[0]-A[0]);if(cr<0)roofB.idx.push(o+a,o+c2,o+d2);else roofB.idx.push(o+a,o+d2,o+c2);}
+      let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const p of pts){x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);z0=Math.min(z0,p[1]);z1=Math.max(z1,p[1]);}
+      this.markBox(x0,z0,x1,z1,top);
+    }
+    const rm=new THREE.Mesh(roofB.geometry(),new THREE.MeshStandardMaterial({map:texN,roughness:.85,polygonOffset:true,polygonOffsetFactor:-1}));rm.castShadow=true;rm.receiveShadow=true;this.group.add(rm);this.disposables.push(rm.geometry);
+    // --- far city: boxes where the far photo shows built-up land
+    const isGreen=c=>c[1]>c[0]*1.04&&c[1]>c[2]*1.06;
+    for(let z=-FH+30;z<FH;z+=58)for(let x=-FH+30;x<FH;x+=58){
+      if(Math.abs(x)<NH+20&&Math.abs(z)<NH+20)continue;
+      const gx=x+(rnd()-.5)*20,gz=z+(rnd()-.5)*20;const c=px(SF,FH,gx,gz);if(!c)continue;const g=this.ground(gx,gz);if(g<=.6)continue;
+      if(isGreen(c)||(c[0]+c[1]+c[2])<120)continue;
+      const dc=Math.hypot(gx-134,gz-2926);let h,kind;
+      if(dc<650&&rnd()<.75){h=25+rnd()*70*(1-dc/800);kind=h>55?'glass':'office';}else{if(rnd()<.45)continue;h=6+rnd()*9+(rnd()<.05?15+rnd()*20:0);kind=rnd()<.6?'shop':'apt';}
+      const w=16+rnd()*22,d=14+rnd()*20;const rc=[lin(c[0]),lin(c[1]),lin(c[2])];
+      boxInto(this.B.far[kind],gx,g-1,gz,w,h+1,d,0,sh.F[kind].tile,sh.F[kind].flat,this.tint(kind),rc);this.markBox(gx-w/2,gz-d/2,gx+w/2,gz+d/2,g+h);
+    }
+    // Makuhari new city skyline beyond the map (west)
+    for(let i=0;i<22;i++){const x=-7600+rnd()*1500,z=-1700+rnd()*1600,h=60+rnd()*120;boxInto(this.B.far.glass,x,0,z,30+rnd()*30,h,30+rnd()*30,0,sh.F.glass.tile,sh.F.glass.flat,this.tint('glass'),col('#9a9c9c'));}
+    // --- trees where the aerial photo is green
+    const ST=sampler(R.treeImg,875);
+    for(let z=-NH+4;z<NH;z+=8)for(let x=-NH+4;x<NH;x+=8){const tx=x+(rnd()-.5)*6,tz=z+(rnd()-.5)*6;const m=px(ST,NH,tx,tz);if(!m||m[0]<128)continue;const c=px(SN,NH,tx,tz);
+      const g=this.ground(tx,tz);if(this.heightAt(tx,tz)>g+1.5)continue;
+      this.trees.push([tx,tz,2.6+rnd()*2.6,g,c]);}
+    // --- railways: monorail + JR / Keisei lines
+    const rails=D.rails.filter(r=>r.code==='40202000192').sort((a,b)=>b.p.length-a.p.length);
+    if(rails[0])this.buildRealMonorail(rails[0].p,D.labels.filter(l=>l.c===422));
+    this.trainPaths=[];
+    for(const r of D.rails){if(r.code==='40202000192')continue;const p=densify(r.p,15);const col2=r.code==='40201000104'?'#ffd400':'#1f6fd1';
+      for(const o of [-2.2,2.2]){const op=o>0?offsetLine(p,o):offsetLine(p,o).reverse();this.trainPaths.push({path:new Path(op.map(q=>[q[0],this.ground(q[0],q[1])+.2,q[1]])),color:col2,cars:r.code==='40201000104'?10:6});}}
+    // --- road traffic
+    for(const r of D.roads){const p=densify(r.p,20);const lanes=r.c==='exp'?[5,8.5]:r.c==='wide'?[3.5,6.5]:[2.5];
+      for(const side of [-1,1])for(const ln of lanes){const o=offsetLine(p,side*ln);const pp=side>0?o:o.slice().reverse();
+        const P=new Path(pp.map(q=>[q[0],this.ground(q[0],q[1])+.8,q[1]]));this.carPaths.push({path:P,n:Math.max(2,Math.floor(P.total/(r.c==='exp'?40:70))),speed:r.c==='exp'?26:12});}}
+    this.finishBatches();
+    this.buildRealTrees();
+    this.buildCars();
+    this.buildClouds();
+    this.mini=R.farImg;this.miniHalf=FH;
+    this.attribution=this.def.attribution;
+  }
+  markBox(x0,z0,x1,z1,h){const i0=Math.max(0,Math.floor((x0+HMEXT)/HMC)),i1=Math.min(HMN-1,Math.floor((x1+HMEXT)/HMC)),j0=Math.max(0,Math.floor((z0+HMEXT)/HMC)),j1=Math.min(HMN-1,Math.floor((z1+HMEXT)/HMC));
+    for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){const k=j*HMN+i;if(this.hm[k]<h)this.hm[k]=h;}}
+  buildRealTrees(){
+    const n=this.trees.length;if(!n)return;
+    const parts=[];for(const [x,y,z,r] of [[0,0,0,1],[.5,.3,.2,.7],[-.45,.35,-.2,.72]]){const s=new THREE.IcosahedronGeometry(r,1);const p=s.attributes.position;for(let i=0;i<p.count;i++){const k=1+(Math.random()-.5)*.3;p.setXYZ(i,p.getX(i)*k+x,p.getY(i)*k+y,p.getZ(i)*k+z);}parts.push(s);}
+    let cnt=0;parts.forEach(p=>cnt+=p.attributes.position.count);const pos=new Float32Array(cnt*3);let o=0;parts.forEach(p=>{pos.set(p.attributes.position.array,o);o+=p.attributes.position.array.length;});
+    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.computeVertexNormals();
+    const im=new THREE.InstancedMesh(geo,new THREE.MeshStandardMaterial({roughness:.95}),n);im.castShadow=true;im.receiveShadow=true;
+    const m=new THREE.Matrix4(),q=new THREE.Quaternion(),s=new THREE.Vector3(),p=new THREE.Vector3(),c=new THREE.Color(),up=new THREE.Vector3(0,1,0);
+    this.trees.forEach((t,i)=>{const r=t[2];p.set(t[0],t[3]+r*.85,t[1]);q.setFromAxisAngle(up,this.rand()*6.28);s.set(r,r*(1+this.rand()*.35),r);m.compose(p,q,s);im.setMatrixAt(i,m);
+      c.setRGB(Math.min(1,t[4][0]/255*1.25),Math.min(1,t[4][1]/255*1.35),Math.min(1,t[4][2]/255*1.15),THREE.SRGBColorSpace);im.setColorAt(i,c);this.markBox(t[0]-r,t[1]-r,t[0]+r,t[1]+r,t[3]+r*2);});
+    this.group.add(im);
+  }
+  buildRealMonorail(pts,stations){
+    const pl=this.B.plain;const p=densify(pts,12);const beamC=col('#c9cfc9'),pil=col('#d6d6d0');
+    // beam height: ground + 13m, smoothed so the track stays gentle across valleys
+    const raw=p.map(q=>this.ground(q[0],q[1])+13);const ys=raw.map((v,i)=>{let s=0,c=0;for(let k=-6;k<=6;k++){const j=i+k;if(j>=0&&j<raw.length){s+=raw[j];c++;}}return Math.max(v,s/c);});
+    const beams=[offsetLine(p,-3.6),offsetLine(p,3.6)];
+    for(const bl of beams)for(let i=0;i<bl.length-1;i++){const a=bl[i],c2=bl[i+1];const dx=c2[0]-a[0],dz=c2[1]-a[1];const L=Math.hypot(dx,dz);if(L<.1)continue;const rot=Math.atan2(dx,dz);
+      boxInto(pl,(a[0]+c2[0])/2,(ys[i]+ys[i+1])/2,(a[1]+c2[1])/2,2.0,2.3,L+.3,rot,[1,1],[0,0],beamC,beamC);}
+    const P=new Path(p.map((q,i)=>[q[0],ys[i],q[1]]));const v=new THREE.Vector3(),dir=new THREE.Vector3();
+    for(let s=0;s<P.total;s+=30){P.at(s,v,dir);const rot=Math.atan2(dir.x,dir.z);const g=this.ground(v.x,v.z);
+      boxInto(pl,v.x,g-1,v.z,2.0,v.y+3.3-g+1,2.0,rot,[1,1],[0,0],pil,pil);boxInto(pl,v.x,v.y+2.3,v.z,10.5,1.2,1.6,rot,[1,1],[0,0],pil,pil);
+      const cs=Math.cos(rot),sn=Math.sin(rot);for(const o of [-4.9,4.9])boxInto(pl,v.x+o*cs,v.y+.6,v.z-o*sn,.6,2.9,1.4,rot,[1,1],[0,0],pil,pil);
+      this.markBox(v.x-6,v.z-6,v.x+6,v.z+6,v.y+4);}
+    for(const st of stations){let best=0,bd=1e9;for(let s=0;s<P.total;s+=4){P.at(s,v);const d=Math.hypot(v.x-st.x,v.z-st.z);if(d<bd){bd=d;best=s;}}
+      if(bd>80)continue;P.at(best,v,dir);const rot=Math.atan2(dir.x,dir.z);const c1=col('#e9e7e1'),c2=col('#8fa2b2');const g=this.ground(v.x,v.z);const cs=Math.cos(rot),sn=Math.sin(rot);
+      boxInto(pl,v.x,v.y+3.6,v.z,24,1.4,90,rot,[1,1],[0,0],c2,col('#7f8a92'));boxInto(pl,v.x,v.y-5.9,v.z,24,1.0,90,rot,[1,1],[0,0],c1,c1);
+      for(const o of [-11,11])for(const l of [-40,-20,0,20,40])boxInto(pl,v.x+o*cs+l*sn,g-1,v.z-o*sn+l*cs,1.2,v.y+4.6-g,1.2,rot,[1,1],[0,0],c1,c1);
+      for(const o of [-11.6,11.6])boxInto(pl,v.x+o*cs,v.y-4.9,v.z-o*sn,.6,2.2,88,rot,[1,1],[0,0],col('#b9d4e6'),c1);
+      this.markBox(v.x-45,v.z-45,v.x+45,v.z+45,v.y+5);}
+    this.monoPaths=[new Path(beams[0].map((q,i)=>[q[0],ys[i],q[1]])),new Path(beams[1].slice().reverse().map((q,i,arr)=>[q[0],ys[arr.length-1-i],q[1]]))];
   }
   buildMinimap(){
     const c=makeCanvas(300,300),g=c.getContext('2d');g.drawImage(this.groundCanvas,0,0,300,300);this.mini=c;
@@ -1029,7 +1159,7 @@ class World{
     // shadows follow player
     this.sun.position.copy(player).addScaledVector(this.sunDir,1500);this.sun.target.position.copy(player);
   }
-  dispose(){this.scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material&&!Object.values(this.sh.mats).includes(o.material)){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map&&!Object.values(this.sh.F).some(f=>f.tex===m.map)&&m.map!==this.sh.cloud)m.map.dispose();m.alphaMap&&m.alphaMap.dispose();m.dispose();});}});this.env.dispose();}
+  dispose(){this.scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material&&!Object.values(this.sh.mats).includes(o.material)){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map&&!Object.values(this.sh.F).some(f=>f.tex===m.map)&&m.map!==this.sh.cloud)m.map.dispose();m.alphaMap&&m.alphaMap.dispose();m.dispose();});}});this.env.dispose();this.scene.traverse(o=>{if(o.material&&o.material.map&&o.material.map.image instanceof HTMLImageElement)o.material.map.dispose();});}
 }
 
 // =====================================================================
@@ -1099,17 +1229,28 @@ document.getElementById('btnHome').onclick=()=>toTitle();
 function startStage(key){
   startAudio();if(AC&&AC.state==='suspended')AC.resume();
   titleEl.classList.add('hidden');loadEl.classList.remove('hidden');mode='loading';
-  setTimeout(()=>{
+  const loadMsg=document.getElementById('loadMsg');loadMsg.textContent='まちを つくっています…';
+  (async()=>{
     if(world){world.dispose();world=null;}
-    world=new World(key);
+    let real=null;const def=STAGES[key];
+    if(def.real){
+      loadMsg.textContent='国土地理院の ちずと しゃしんを よみこんでいます…';
+      const img=u=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=u;});
+      try{const [data,nearImg,farImg,treeImg]=await Promise.all([fetch(def.real+'anagawa.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}),img(def.real+'photo_near.jpg'),img(def.real+'photo_far.jpg'),img(def.real+'trees.png')]);real={data,nearImg,farImg,treeImg};}
+      catch(e){loadMsg.textContent='データを よみこめませんでした ('+e.message+')';setTimeout(toTitle,2500);loadEl.classList.add('hidden');return;}
+      loadMsg.textContent='たてもの '+real.data.buildings.length.toLocaleString()+' けんを たてています…';
+      await new Promise(r=>setTimeout(r,30));
+    }
+    world=new World(key,real);
     world.scene.add(raikorn.root);raikorn.root.traverse(o=>{if(o.isMesh)o.castShadow=true;});
     streaks=makeStreaks(world.scene);
     const s=world.def.start;player.pos.set(s.x,s.y,s.z);player.yaw=s.yaw;player.vy=0;player.speed=CRUISE;player.target=CRUISE;player.turn=player.climb=player.roll=player.pitch=0;
     const f=new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));camPos.copy(player.pos).addScaledVector(f,-20).add(new THREE.Vector3(0,6,0));camLook.copy(player.pos);view.off.copy(camPos).sub(player.pos);view.az=0;view.el=.36;view.dAz=0;view.dEl=0;view.zoom=1;camMode=0;player.hover=false;document.getElementById('btnHover').textContent='⏸';document.getElementById('camhint').style.opacity=.85;
     renderer.toneMappingExposure=world.def.sun.exp;
     document.getElementById('stageName').textContent=world.def.name;
+    document.getElementById('attr').textContent=world.attribution||'';
     loadEl.classList.add('hidden');hud.classList.remove('hidden');mode='play';lastLm=null;
-  },60);
+  })();
 }
 function toTitle(){mode='title';hud.classList.add('hidden');titleEl.classList.remove('hidden');titleScene.add(raikorn.root);raikorn.root.position.set(0,0,0);raikorn.root.rotation.set(0,0,0);renderer.toneMappingExposure=.7;if(windGain)windGain.gain.value=0;}
 
@@ -1202,10 +1343,10 @@ function updatePlay(dt,t){
   drawFx(s01);
 }
 function drawMini(){
-  const W=300,sc=W/2/1800;const P=player;mg.save();mg.clearRect(0,0,W,W);mg.beginPath();mg.arc(W/2,W/2,W/2,0,7);mg.clip();
+  const W=300,sc=W/2/(world.miniHalf?2400:1800);const P=player;mg.save();mg.clearRect(0,0,W,W);mg.beginPath();mg.arc(W/2,W/2,W/2,0,7);mg.clip();
   mg.fillStyle='#5d6a74';mg.fillRect(0,0,W,W);
   mg.translate(W/2,W/2);mg.rotate(P.yaw);mg.scale(sc,sc);mg.translate(-P.pos.x,-P.pos.z);
-  mg.drawImage(world.mini,-HALF,-HALF,WORLD,WORLD);
+  {const mh=world.miniHalf||HALF;mg.drawImage(world.mini,-mh,-mh,mh*2,mh*2);}
   for(const l of world.def.landmarks){mg.fillStyle='#ff4b4b';mg.beginPath();mg.arc(l.x,l.z,32,0,7);mg.fill();mg.strokeStyle='#fff';mg.lineWidth=10;mg.stroke();}
   mg.restore();
   mg.save();mg.translate(W/2,W/2);mg.fillStyle='#ffd23f';mg.strokeStyle='#222';mg.lineWidth=3;mg.beginPath();mg.moveTo(0,-16);mg.lineTo(11,12);mg.lineTo(0,6);mg.lineTo(-11,12);mg.closePath();mg.fill();mg.stroke();
